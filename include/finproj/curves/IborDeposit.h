@@ -19,7 +19,7 @@ class IborDeposit {
               const std::string& tenor,
               double deposit_rate,
               DayCountTypes day_count_type,
-              double notional,
+              double notional = 100.0,
               CalendarTypes cal_type = CalendarTypes::WEEKEND,
               BusDayAdjustTypes bus_day_adjust_type = BusDayAdjustTypes::MODIFIED_FOLLOWING);
   IborDeposit(const IborDeposit& rhs) = default;

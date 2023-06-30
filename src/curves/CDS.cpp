@@ -176,7 +176,98 @@ std::tuple<double,double> CDS::value(const ChronoDate& valuation_date, const Cre
   auto long_prot = long_protection_ ? 1 : -1;
   auto full_pv = fwd_df * long_prot * (prot_pv - running_coupon_ * full_rpv01 * notional_);
   auto clean_pv = fwd_df * long_prot * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
-  return std::make_tuple(full_pv, clean_pv);
+  return {full_pv, clean_pv};
+}
+
+double CDS::par_spread(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int pv01_method,
+                  int prot_method, int num_of_steps) const
+{
+  auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+  auto clean_rpv01 = std::get<1>(rpv01);
+  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps,prot_method);
+  auto spd = prot_pv / clean_rpv01 / notional_;
+  return spd;
+}
+
+double CDS::clean_price(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate,
+                        int pv01_method, int prot_method, int num_of_steps) const
+{
+  auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+  auto clean_rpv01 = std::get<1>(rpv01);
+  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps,prot_method);
+  auto fwd_df = 1.0;
+  auto clean_pv = fwd_df * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
+  auto clean_price = (notional_ - clean_pv) / notional_ * 100.0;
+  return clean_price;
+}
+
+unsigned int CDS::accrued_days() const{
+    auto pcd = adjusted_dates_.at(0);
+    unsigned int accrued_days = (step_in_date_ - pcd);
+    return accrued_days;
+}
+
+double CDS::accrued_interest() const {
+    auto day_count = DayCount(day_count_type_);
+    auto pcd = adjusted_dates_.at(0);
+    auto accrual_factor = std::get<0>(day_count.year_frac(pcd, step_in_date_, FrequencyTypes::ANNUAL));
+    auto accrued_interest = accrual_factor * notional_ * running_coupon_;
+    auto long_prot = long_protection_ ? -1 : 1;
+    return long_prot * accrued_interest;
+}
+
+double CDS::premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
+                      int pv01_method) const
+{
+    auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+    auto full_rpv01 = std::get<0>(rpv01);
+    auto v = full_rpv01 * notional_ * running_coupon_;
+    return v;
+}
+
+std::tuple<double,double,double,double> CDS::value_fast_approx(const ChronoDate& valuation_date, double flat_cont_int_rate, double flat_cds_curve_spread,
+                                                     double curve_rec_rate, double contract_rec_rate) const
+{
+    auto t_mat = (maturity_date_ - valuation_date) / 365.0;
+    auto t_eff = (step_in_date_ - valuation_date) / 365.0;
+    auto h = flat_cds_curve_spread / (1.0 - curve_rec_rate);
+    auto r = flat_cont_int_rate;
+    auto fwd_df = 1.0;
+    auto bump_size = 0.0001;
+    auto long_prot = long_protection_ ? 1 : -1;
+    auto accrued = accrued_interest();
+
+    auto w = r + h;
+    auto z = exp(-w * t_eff) - exp(-w * t_mat);
+    auto clean_rpv01 = (z / w) * 365.0 / 360.0;
+    auto prot_pv = h * (1.0 - contract_rec_rate) * (z / w) * notional_;
+    auto clean_pv = fwd_df * long_prot * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
+    auto full_pv = clean_pv + fwd_df * accrued;
+
+    //bump CDS spread and calculate
+
+    h = (flat_cds_curve_spread + bump_size) / (1.0 - contract_rec_rate);
+    w = r + h;
+    z = exp(-w * t_eff) - exp(-w * t_mat);
+    clean_rpv01 = (z / w) * 365.0 / 360.0;
+    prot_pv = h * (1.0 - contract_rec_rate) * (z / w) * notional_;
+    auto clean_pv_credit_bumped = fwd_df * long_prot * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
+    auto full_pv_credit_bumped = clean_pv_credit_bumped + fwd_df * long_prot * accrued;
+    auto credit01 = full_pv_credit_bumped - full_pv;
+
+    //bump Rate and calculate
+
+    h = flat_cds_curve_spread / (1.0 - contract_rec_rate);
+    r = flat_cont_int_rate + bump_size;
+    w = r + h;
+    z = exp(-w * t_eff) - exp(-w * t_mat);
+    clean_rpv01 = (z / w) * 365.0 / 360.0;
+    prot_pv = h * (1.0 - contract_rec_rate) * (z / w) * notional_;
+    auto clean_pv_ir_bumped = fwd_df * long_prot * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
+    auto full_pv_ir_bumped = clean_pv_ir_bumped + fwd_df * long_prot * accrued;
+    auto ir01 = full_pv_ir_bumped - full_pv;
+
+    return {full_pv, clean_pv, credit01, ir01};
 }
 
 ChronoDate CDS::get_maturity_date() const {

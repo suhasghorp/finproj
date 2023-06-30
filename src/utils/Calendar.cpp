@@ -19,8 +19,8 @@ ChronoDate Calendar::adjust(const ChronoDate& dt, const BusDayAdjustTypes busDay
     unsigned int orig_month = dt.month();
     unsigned int orig_year = dt.year();
 
-    while (!is_business_day(dt)) {
-      new_dt = dt.add_days(1);
+    while (!is_business_day(new_dt)) {
+      new_dt = new_dt.add_days(1);
     }
     //if the business day is in a different month look back
     //for previous first business day one day at a time

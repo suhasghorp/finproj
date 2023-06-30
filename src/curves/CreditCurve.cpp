@@ -46,3 +46,10 @@ void CreditCurve::validate() const {
     maturity_date = cds.get_maturity_date();
   }
 }
+
+double CreditCurve::surv_prob(const ChronoDate& dt) const{
+  auto t = (dt - valuation_date_) / 365.0;
+  Interpolator interpolator{times_, values_, InterpTypes::FLAT_FWD_RATES};
+  auto q = interpolator.interpolate(t);
+  return q;
+}

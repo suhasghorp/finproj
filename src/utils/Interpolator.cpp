@@ -22,7 +22,7 @@ double Interpolator::interpolate(double t) const{
   double ret;
 
   if (t < small)
-    ret = 1.0;
+    return 1.0;
 
   if (t == times_[0])
     ret = dfs_[0];

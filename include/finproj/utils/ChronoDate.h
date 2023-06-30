@@ -44,7 +44,7 @@ class ChronoDate {
   [[nodiscard]] ChronoDate add_tenor(const std::string& tenor) const ;
 
   // Operators
-  unsigned operator - (const ChronoDate& rhs) const;
+  int operator - (const ChronoDate& rhs) const;
   bool operator == (const ChronoDate& rhs) const;
   std::strong_ordering operator <=> (const ChronoDate& rhs) const;
 

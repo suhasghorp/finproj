@@ -253,7 +253,7 @@ date::weekday ChronoDate::weekday() const {
   return date::sys_days(date_);
 }
 
-unsigned ChronoDate::operator - (const ChronoDate& rhs) const {
+int ChronoDate::operator - (const ChronoDate& rhs) const {
   // By using the serial dates, we can avoid
   // these function calls:
   // return (date::sys_days(date_).time_since_epoch()

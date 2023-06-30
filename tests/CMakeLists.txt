@@ -10,7 +10,7 @@ add_executable(tests
         TestInterpolator.cpp
         TestDiscountCurveZeros.cpp
         TestIborFuture.cpp
-        TestIborSwap.cpp TestIborSingleCurve.cpp TestCreditCurve.cpp)
+        TestIborSwap.cpp TestIborSingleCurve.cpp TestCreditCurve.cpp TestCDS.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(tests PRIVATE cxx_std_20)

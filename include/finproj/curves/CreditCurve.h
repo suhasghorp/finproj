@@ -14,6 +14,7 @@ class CreditCurve{
         InterpTypes interp_type = InterpTypes::FLAT_FWD_RATES);
   void build_curve();
   void validate() const;
+  double surv_prob(const ChronoDate& dt) const;
   std::vector<double> times_{}, values_{};
   IborSingleCurve libor_curve_{};
  private:

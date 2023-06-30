@@ -9,11 +9,11 @@ IborDeposit::IborDeposit(const ChronoDate& start_date,
             CalendarTypes cal_type,
             BusDayAdjustTypes bus_day_adjust_type):
 
-            start_date_{start_date},maturity_date_{maturity_date},deposit_rate_{deposit_rate},
+            start_date_{start_date},deposit_rate_{deposit_rate},
             day_count_type_{day_count_type},notional_(notional),cal_type_{cal_type},
             bus_day_adjust_type_{bus_day_adjust_type}, calendar_(Calendar(cal_type_))
 {
-  maturity_date_ = calendar_.adjust(maturity_date_, bus_day_adjust_type);
+  maturity_date_ = calendar_.adjust(maturity_date, bus_day_adjust_type);
   if (start_date_ > maturity_date_)
     throw std::runtime_error("Start date cannot be after maturity date");
 }
@@ -30,10 +30,8 @@ IborDeposit::IborDeposit(const ChronoDate& start_date,
                         day_count_type_{day_count_type},notional_(notional),cal_type_{cal_type},
                         bus_day_adjust_type_{bus_day_adjust_type}, calendar_(Calendar(cal_type_))
 {
-  maturity_date_ = start_date_.add_tenor(const_cast<std::string &>(tenor_));
-  maturity_date_ = calendar_.adjust(maturity_date_, bus_day_adjust_type);
-  if (start_date_ > maturity_date_)
-    throw std::runtime_error("Start date cannot be after maturity date");
+  auto maturity_date = start_date_.add_tenor(tenor_);
+  new (this) IborDeposit(start_date,maturity_date,deposit_rate,day_count_type,notional,cal_type,bus_day_adjust_type);
 }
 
 double IborDeposit::value(const ChronoDate& val_date, const DiscountCurve& libor_curve) const{

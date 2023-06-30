@@ -31,6 +31,16 @@ class CDS {
   std::tuple<double,double> risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve,int pv01_method) const;
   double protection_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
                            double recovery_rate,int num_of_steps = 25,int prot_method = 0) const;
+  double par_spread(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int pv01_method = 0,
+                    int prot_method = 0, int num_of_steps = 25) const;
+  double clean_price(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int pv01_method = 0,
+                     int prot_method = 0, int num_of_steps = 25) const;
+  unsigned int accrued_days() const;
+  double accrued_interest() const;
+  double premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
+                        int pv01_method = 0) const;
+  std::tuple<double,double,double,double> value_fast_approx(const ChronoDate& valuation_date, double flat_cont_int_rate, double flat_cds_curve_spread,
+                                                       double curve_rec_rate, double contract_rec_rate) const;
  private:
   ChronoDate step_in_date_{}, maturity_date_{};
   double running_coupon_{},notional_{};
