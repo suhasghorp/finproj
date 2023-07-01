@@ -39,17 +39,16 @@ include(FetchContent)
 # This is header only, so could be replaced with git submodules or FetchContent
 #find_package(Boost REQUIRED)
 # Adds Boost::boost
-#find_package(Eigen3 CONFIG REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 find_package(libInterpolate REQUIRED)
 
 #find_package(dlib REQUIRED)
 
-#find_package(fmt REQUIRED)
+find_package(xtensor REQUIRED)
 
 # The compiled library code is here
 add_subdirectory(src)
-
 # The executable code is here
 add_subdirectory(app)
 

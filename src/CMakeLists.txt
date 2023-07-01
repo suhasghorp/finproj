@@ -29,7 +29,7 @@ target_include_directories(finproj PUBLIC ../include)
 
 # This depends on (header only) boost
 #target_link_libraries(finproj PRIVATE Boost::boost libInterpolate::Interpolate dlib::dlib)
-target_link_libraries(finproj PRIVATE libInterpolate::Interpolate)
+target_link_libraries(finproj PRIVATE libInterpolate::Interpolate Eigen3::Eigen xtensor)
 
 target_compile_options(finproj PRIVATE -Werror)
 
