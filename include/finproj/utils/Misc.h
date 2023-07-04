@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <cmath>
+#include <Eigen/Dense>
+using namespace Eigen;
 
 constexpr double gSmall = 1e-12;
 constexpr double gdays_in_month = 365.242/12.0;
@@ -21,7 +23,7 @@ std::vector<T> linspace(T a, T b, std::size_t N) {
   return xs;
 }
 
-double N(double x) {
+inline double N(double x) {
   auto a1 = 0.319381530;
   auto a2 = -0.356563782;
   auto a3 = 1.781477937;
@@ -44,7 +46,7 @@ double N(double x) {
   return phi;
 }
 
-double norminvcdf(double p) {
+inline double norminvcdf(double p) {
   auto a1 = -39.6968302866538;
   auto a2 = 220.946098424521;
   auto a3 = -275.928510446969;
@@ -93,6 +95,55 @@ double norminvcdf(double p) {
     inverseCDF = -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1.0);
   }
   return inverseCDF;
+}
+
+inline double uniform_to_default_time(double u, const std::vector<double>& times, const std::vector<double>& values) {
+  if (u == 0.0)
+    return 99999.0;
+  if (u == 1.0)
+    return 0.0;
+  auto num_points = times.size();
+  auto index = 0;
+  for (auto i{1};i<num_points;++i){
+    if (u <= values.at(i - 1) && u > values.at(i)){
+      index = i;
+      break;
+    }
+  }
+  double tau = 0.0;
+  if (index == num_points + 1) {
+    auto t1 = times[num_points - 1];
+    auto q1 = values[num_points - 1];
+    auto t2 = times[num_points];
+    auto q2 = values[num_points];
+    auto lam = log(q1 / q2) / (t2 - t1);
+    tau = t2 - log(u / q2) / lam;
+  } else if (index == 0){
+    auto t1 = times.back();
+    auto q1 = values.back();
+    auto t2 = times[index];
+    auto q2 = values[index];
+    tau = (t1 * log(q2 / u) + t2 * log(u / q1)) / log(q2 / q1);
+  } else {
+    auto t1 = times[index - 1];
+    auto q1 = values[index - 1];
+    auto t2 = times[index];
+    auto q2 = values[index];
+    tau = (t1 * log(q2 / u) + t2 * log(u / q1)) / log(q2 / q1);
+  }
+  return tau;
+}
+
+inline MatrixXd corr_matrix_generator(double rho, int n){
+  MatrixXd corr_matrix = MatrixXd::Zero(n,n);
+  for (int i{0}; i < n; ++i){
+    corr_matrix(i, i) = 1.0;
+    for (int j{0}; j < i; ++j){
+      corr_matrix(i, j) = rho;
+      corr_matrix(j, i) = rho;
+    }
+  }
+  return corr_matrix;
 }
 
 

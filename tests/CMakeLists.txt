@@ -10,7 +10,7 @@ add_executable(tests
         TestInterpolator.cpp
         TestDiscountCurveZeros.cpp
         TestIborFuture.cpp
-        TestIborSwap.cpp TestIborSingleCurve.cpp TestCreditCurve.cpp TestCDS.cpp)
+        TestIborSwap.cpp TestIborSingleCurve.cpp TestCreditCurve.cpp TestCDS.cpp TestCDSBasket.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(tests PRIVATE cxx_std_20)
@@ -19,8 +19,14 @@ target_compile_options(finproj PRIVATE -Werror)
 
 # Should be linked to the main library, as well as the Catch2 testing library
 #target_link_libraries(tests PRIVATE finproj Catch2::Catch2WithMain fmt::fmt)
-target_link_libraries(tests PRIVATE finproj Catch2::Catch2WithMain)
+target_link_libraries(tests PRIVATE finproj Catch2::Catch2WithMain Eigen3::Eigen)
 
 # If you register a test, then ctest and make test will run it.
 # You can also run examples and check the output, as well.
 #add_test(NAME testlibtest COMMAND testlib) # Command can be a target
+
+add_custom_command( TARGET tests
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying unit test data.."
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_HOME_DIRECTORY}/data ${CMAKE_BINARY_DIR}
+        )

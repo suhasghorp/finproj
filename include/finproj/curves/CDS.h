@@ -23,12 +23,14 @@ class CDS {
       CalendarTypes cal_type = CalendarTypes::WEEKEND,
       BusDayAdjustTypes bus_day_adjust_type = BusDayAdjustTypes::FOLLOWING,
       DateGenRuleTypes date_gen_rule_type = DateGenRuleTypes::BACKWARD);
+  CDS() = default;
   void generate_adjusted_cds_payment_dates();
   void calc_flows();
   ChronoDate get_maturity_date() const ;
+  std::vector<ChronoDate> get_adjusted_dates() const;
   std::tuple<double,double> value(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
                                    double recovery_rate, int pv01_method = 0, int prot_method = 0, int num_of_steps = 25);
-  std::tuple<double,double> risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve,int pv01_method) const;
+  std::tuple<double,double> risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve,int pv01_method = 0) const;
   double protection_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
                            double recovery_rate,int num_of_steps = 25,int prot_method = 0) const;
   double par_spread(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int pv01_method = 0,

@@ -17,6 +17,10 @@ bus_day_adjust_type_{bus_day_adjust_type},date_gen_rule_type_{date_gen_rule_type
   calc_flows();
 }
 
+std::vector<ChronoDate> CDS::get_adjusted_dates() const {
+  return adjusted_dates_;
+}
+
 CDS::CDS(const ChronoDate& step_in_date,const std::string&& tenor, double running_coupon,
          double notional, bool long_protection,
          FrequencyTypes freq_type,

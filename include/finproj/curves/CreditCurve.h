@@ -17,10 +17,10 @@ class CreditCurve{
   double surv_prob(const ChronoDate& dt) const;
   std::vector<double> times_{}, values_{};
   IborSingleCurve libor_curve_{};
+  double recovery_rate_{};
  private:
   ChronoDate valuation_date_{};
   std::vector<CDS> cds_contracts_{};
-  double recovery_rate_{};
   InterpTypes interp_type_{};
 
 
