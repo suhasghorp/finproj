@@ -7,6 +7,7 @@
 #include <array>
 #include <string>
 
+
 namespace date = std::chrono;
 using Date = std::chrono::year_month_day;
 
@@ -22,6 +23,7 @@ class ChronoDate {
   ChronoDate(int year, unsigned month, unsigned day);
   ChronoDate(const Date& ymd);
   ChronoDate(const ChronoDate& cd);
+  ChronoDate(const std::string& str);
   ChronoDate();
 
   // Accessors:

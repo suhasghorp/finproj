@@ -132,7 +132,7 @@ static CreditCurve build_issuer_curve_one(double mkt_spread_bump, double ir_bump
 
     auto recovery_rate = 0.40;
 
-    auto issuer_curve = CreditCurve(valuation_date,cds_contracts,libor_curve,recovery_rate);
+    auto issuer_curve = CreditCurve(valuation_date,"ONE", cds_contracts,libor_curve,recovery_rate);
     return issuer_curve;
 }
 
@@ -168,7 +168,7 @@ static CreditCurve build_issuer_curve_two(double mkt_spread_bump, double ir_bump
     }
     auto recovery_rate = 0.40;
 
-    auto issuer_curve = CreditCurve(settlement_date,cds_contracts,libor_curve,recovery_rate);
+    auto issuer_curve = CreditCurve(settlement_date,"TWO", cds_contracts,libor_curve,recovery_rate);
     auto years = linspace(0.0,10.0,20);
     for (auto y : years){
       auto date = settlement_date.add_years(y);

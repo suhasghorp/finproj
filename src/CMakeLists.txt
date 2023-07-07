@@ -23,14 +23,16 @@ add_library(finproj ${HEADER_LIST}
         curves/IborSingleCurve.cpp
         curves/CDS.cpp
         curves/CreditCurve.cpp
-        models/GaussCopula.cpp curves/CDSBasket.cpp curves/CDSIndexPortfolio.cpp models/StudentTCopula.cpp)
+        models/GaussCopula.cpp
+        curves/CDSBasket.cpp
+        curves/CDSIndexPortfolio.cpp
+        models/StudentTCopula.cpp)
 
 # We need this directory, and users of our library will need it too
 target_include_directories(finproj PUBLIC ../include)
 
 # This depends on (header only) boost
-#target_link_libraries(finproj PRIVATE Boost::boost libInterpolate::Interpolate dlib::dlib)
-target_link_libraries(finproj PRIVATE libInterpolate::Interpolate Eigen3::Eigen xtensor)
+target_link_libraries(finproj PRIVATE libInterpolate::Interpolate Eigen3::Eigen Boost::boost)
 
 target_compile_options(finproj PRIVATE -Werror)
 

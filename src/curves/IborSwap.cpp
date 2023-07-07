@@ -104,4 +104,5 @@ ChronoDate IborSwap::get_eff_date() const { return eff_date_;}
 ChronoDate IborSwap::get_maturity_date() const { return maturity_date_;}
 SwapFixedLeg IborSwap::get_fixed_leg() const { return fixed_leg_;}
 SwapFloatLeg IborSwap::get_double_leg() const {return double_leg_;}
+ChronoDate IborSwap::get_termination_date() const { return termination_date_;}
 

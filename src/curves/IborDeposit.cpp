@@ -38,7 +38,7 @@ double IborDeposit::value(const ChronoDate& val_date, const DiscountCurve& libor
   if (val_date > start_date_)
     throw std::runtime_error("Start date after maturity date");
   auto dc = DayCount(day_count_type_);
-  auto acc_factor = std::get<0>(dc.year_frac(start_date_, maturity_date_, FrequencyTypes::ANNUAL));
+  auto [acc_factor, num, den] = dc.year_frac(start_date_, maturity_date_, FrequencyTypes::ANNUAL);
   auto df_settle = libor_curve.df(start_date_);
   auto df_maturity = libor_curve.df(maturity_date_);
   auto v = (1.0 + acc_factor * deposit_rate_) * notional_;

@@ -7,6 +7,7 @@
 #include <finproj/curves/IborSwap.h>
 #include <tuple>
 
+
 TEST_CASE( "test_credit_curve", "[single-file]" ){
   ChronoDate curve_date{2018,12,20};
   auto fixedDCC = DayCountTypes::ACT_365F;
@@ -24,17 +25,17 @@ TEST_CASE( "test_credit_curve", "[single-file]" ){
                          fixed_coupon,
                          fixedFreq,
                          fixedDCC);
-    swaps.push_back(swap);
+    swaps.emplace_back(swap);
   }
   auto libor_curve = IborSingleCurve(curve_date, depos, fras, swaps);
   for (int i{1}; i < 11; ++i){
     auto maturity_date = curve_date.add_months(12 * i);
     auto cds = CDS(curve_date, maturity_date, 0.005 + 0.001 * (i - 1));
-    cds_contracts.push_back(cds);
+    cds_contracts.emplace_back(cds);
   }
   auto recovery_rate = 0.40;
 
-  auto issuer_curve = CreditCurve(curve_date,cds_contracts,libor_curve,recovery_rate);
+  auto issuer_curve = CreditCurve(curve_date,"XYZ", cds_contracts,libor_curve,recovery_rate);
 
   REQUIRE_THAT(issuer_curve.times_[0], Catch::Matchers::WithinAbs(0.0, 0.0001));
   REQUIRE_THAT(issuer_curve.times_[5], Catch::Matchers::WithinAbs(5.0027, 0.0001));
@@ -63,5 +64,7 @@ TEST_CASE( "test_credit_curve", "[single-file]" ){
   v = cds.value(curve_date, issuer_curve, recovery_rate);
   REQUIRE_THAT(std::get<0>(v) * 1000, Catch::Matchers::WithinAbs(0.0, 0.0001)); //full PV
   REQUIRE_THAT(std::get<1>(v) * 1000, Catch::Matchers::WithinAbs(0.0, 0.0001)); //clean PV
+
+
 
 }

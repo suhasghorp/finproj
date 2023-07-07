@@ -22,6 +22,8 @@ class DiscountCurve {
                                 FrequencyTypes freq_type);
   std::vector<double> df_to_zero(const std::vector<double>& dfs,const std::vector<ChronoDate>& dates,
                                 FrequencyTypes freq_type, DayCountTypes day_count_type);
+  std::vector<double> df_to_zero(const std::vector<double>& dfs,const std::vector<double>& times,
+                                 FrequencyTypes freq_type);
   std::vector<double> df(const std::vector<ChronoDate>& dates, DayCountTypes day_count_type = DayCountTypes::ACT_ACT_ISDA);
   double df(const ChronoDate& date, DayCountTypes day_count_type = DayCountTypes::ACT_ACT_ISDA) const;
   double df(double time) const;

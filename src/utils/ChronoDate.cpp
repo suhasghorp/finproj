@@ -1,7 +1,9 @@
 #include "finproj/utils/ChronoDate.h"
 #include <finproj/utils/Misc.h>
 #include <algorithm>
+#include <iostream>
 #include <cmath>
+#include <ranges>
 
 ChronoDate::ChronoDate(int year, unsigned month, unsigned day) :
                                                                  date_{ date::year{year} / date::month{month} / date::day{day} }
@@ -20,6 +22,15 @@ ChronoDate::ChronoDate(const Date& ymd) : date_{ ymd }{
     std::runtime_error e("ChronoDate constructor: Invalid year_month_day input.");
     throw e;
   }
+  reset_serial_date_();
+}
+
+ChronoDate::ChronoDate(const std::string& str){
+  auto splits = split(str,"/");
+  unsigned int m = stoul(splits.at(0));
+  unsigned int d = stoul(splits.at(1));
+  int y = stoi(splits.at(2));
+  date_ = std::chrono::year_month_day{ date::year{y} / date::month{m} / date::day{d} };
   reset_serial_date_();
 }
 
@@ -62,10 +73,11 @@ ChronoDate ChronoDate::add_years(double rhs_years) const {
   int ddi = static_cast<int>((rhs_years * 12.0d - mmi) * gdays_in_month);
   Date new_date = date_ + date::months(mmi);
   if (!new_date.ok()){
-    new_date = date_.year() / date_.month() / 28;
+    new_date = new_date.year() / new_date.month() / 28;
   }
   ChronoDate new_dt{new_date};
   new_dt = new_dt.add_days(ddi);
+
   // Only possible error case is if month is February
   // and the result is day = 29 in a non-leap year.
 

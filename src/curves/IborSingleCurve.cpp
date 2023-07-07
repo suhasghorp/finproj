@@ -148,7 +148,7 @@ void IborSingleCurve::build_curve_using_1d_solver() {
 
   for (auto &dep: ibor_deposits_) {
     auto df_settle = df(dep.get_start_date());
-    auto df_mat = dep.maturity_df() * df_settle;
+    df_mat = dep.maturity_df() * df_settle;
     tmat = double(dep.get_maturity_date() - valuation_date_) / 365.0;
     times_.push_back(tmat);
     dfs_.push_back(df_mat);

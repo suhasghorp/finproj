@@ -37,6 +37,7 @@ class IborSwap {
   SwapFloatLeg get_double_leg() const;
   ChronoDate get_eff_date() const;
   ChronoDate get_maturity_date() const;
+  ChronoDate get_termination_date() const;
 
  private:
   ChronoDate eff_date_{},termination_date_{}, maturity_date_{};

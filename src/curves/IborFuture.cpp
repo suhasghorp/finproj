@@ -18,26 +18,13 @@ IborFuture::IborFuture(const ChronoDate& date, int fut_number, std::string tenor
   last_trading_date_ = delivery_date_.add_days(-2);
 }
 
-double IborFuture::convexity(const ChronoDate& val_date, double volatility, double mean_reversion) const {
-  auto a = mean_reversion;
-  double t0 = 0.0;
-  double t1 = double(last_trading_date_ - val_date) / 365.0;
-  double t2 = double(end_of_interest_period_ - val_date) / 365.0;
-
-  /** Hull White model for short rate dr = (theta(t)-ar) dt + sigma * dz
-    This reduces to Ho-Lee when a = 0 so to avoid divergences I provide
-    this numnerical limit */
-  double c{};
-  if (fabs(a) > 1e-10) {
-    auto bt1t2 = (1.0 - exp(-a * (t2 - t1))) / a;
-    auto bt0t1 = (1.0 - exp(-a * (t1 - t0))) / a;
-    auto w = 1.0 - exp(-2.0 * a * t1);
-    auto term = bt1t2 * w + 2.0 * a * pow(bt0t1, 2);
-    c = bt1t2 * pow(volatility, 2) * term / (t2 - t1) / 4.0 / a;
-  } else {
-    c = t1 * t2 * pow(volatility,2) / 2.0;
-  }
-  return c;
+IborFuture::IborFuture(const ChronoDate& date, const ChronoDate& delivery_date, std::string tenor,
+           DayCountTypes accrual_type,
+           double contract_size):date_{date},delivery_date_{delivery_date},tenor_{tenor},accrual_type_{accrual_type},
+                                               contract_size_{contract_size}
+{
+  end_of_interest_period_ = delivery_date_.next_imm_date();
+  last_trading_date_ = delivery_date_.add_days(-2);
 }
 
 double IborFuture::fra_rate(double futures_price, double convexity) const{

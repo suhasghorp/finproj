@@ -74,6 +74,28 @@ std::vector<double> DiscountCurve::zero_to_df(const std::vector<double>& rates, 
   return df;
 }
 
+std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,const std::vector<double>& times,
+                               FrequencyTypes freq_type)
+{
+  auto f = static_cast<int>(freq_type);
+  if (dfs.size() != times.size())
+      throw std::runtime_error("disc facrtors and times have different sizes");
+  auto num_times = times.size();
+  std::vector<double> zero_rates{};
+  zero_rates.reserve(num_times);
+  for (int i = 0; i < num_times; ++i){
+      auto t = fmax(times.at(i),gSmall);
+      if (freq_type == FrequencyTypes::CONTINUOUS){
+        zero_rates.push_back(-log(dfs[i]) / t);
+      } else if (freq_type == FrequencyTypes::SIMPLE){
+        zero_rates.push_back((1.0 / dfs[i] - 1.0) / t);
+      } else {
+        zero_rates.push_back((pow(dfs[i], -1.0 / (t * f)) - 1.0) * f);
+      }
+  }
+  return zero_rates;
+}
+
 std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,const std::vector<ChronoDate>& dates,
                               FrequencyTypes freq_type, DayCountTypes day_count_type){
   auto f = static_cast<int>(freq_type);

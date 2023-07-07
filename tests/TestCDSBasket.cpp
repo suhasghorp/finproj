@@ -11,11 +11,9 @@
 #include <tuple>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <array>
-#include <Eigen/Dense>
-using namespace Eigen;
+
 
 
 
@@ -28,15 +26,15 @@ TEST_CASE( "test_cds_basket", "[single-file]" ){
   auto swapType = SwapTypes::PAY;
 
   std::vector<IborDeposit> depos{};
-  depos.push_back(IborDeposit(settlement_date, "1D", 0.0502, dcType));
+  depos.emplace_back(IborDeposit(settlement_date, "1D", 0.0502, dcType));
 
   std::vector<IborSwap> swaps{};
   std::vector<IborFRA> fras{};
-  swaps.push_back(IborSwap(settlement_date,"1Y",swapType,0.0502,fixedFreq,dcType));
-  swaps.push_back(IborSwap(settlement_date,"2Y",swapType,0.0502,fixedFreq,dcType));
-  swaps.push_back(IborSwap(settlement_date,"3Y",swapType,0.0501,fixedFreq,dcType));
-  swaps.push_back(IborSwap(settlement_date,"4Y",swapType,0.0502,fixedFreq,dcType));
-  swaps.push_back(IborSwap(settlement_date,"5Y",swapType,0.0501,fixedFreq,dcType));
+  swaps.emplace_back(IborSwap(settlement_date,"1Y",swapType,0.0502,fixedFreq,dcType));
+  swaps.emplace_back(IborSwap(settlement_date,"2Y",swapType,0.0502,fixedFreq,dcType));
+  swaps.emplace_back(IborSwap(settlement_date,"3Y",swapType,0.0501,fixedFreq,dcType));
+  swaps.emplace_back(IborSwap(settlement_date,"4Y",swapType,0.0502,fixedFreq,dcType));
+  swaps.emplace_back(IborSwap(settlement_date,"5Y",swapType,0.0501,fixedFreq,dcType));
 
   auto libor_curve = IborSingleCurve(valuation_date, depos, fras, swaps);
 
@@ -75,12 +73,12 @@ TEST_CASE( "test_cds_basket", "[single-file]" ){
     rec = std::stod(temp.c_str());
 
     std::vector<CDS> contracts{};
-    contracts.push_back(CDS(step_in_date, maturity3Y, spd3Y));
-    contracts.push_back(CDS(step_in_date, maturity5Y, spd5Y));
-    contracts.push_back(CDS(step_in_date, maturity7Y, spd7Y));
-    contracts.push_back(CDS(step_in_date, maturity10Y, spd10Y));
+    contracts.emplace_back(CDS(step_in_date, maturity3Y, spd3Y));
+    contracts.emplace_back(CDS(step_in_date, maturity5Y, spd5Y));
+    contracts.emplace_back(CDS(step_in_date, maturity7Y, spd7Y));
+    contracts.emplace_back(CDS(step_in_date, maturity10Y, spd10Y));
 
-    issuer_curves.push_back(CreditCurve(valuation_date, contracts, libor_curve, rec));
+    issuer_curves.emplace_back(CreditCurve(valuation_date, ticker, contracts, libor_curve, rec));
 
     ++num_credits;
     line = "";

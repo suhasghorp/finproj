@@ -4,10 +4,10 @@
 #include <ranges>
 #include <iostream>
 
-CreditCurve::CreditCurve(const ChronoDate& valuation_date, const std::vector<CDS>& cds_contracts,
-            IborSingleCurve& libor_curve,double recovery_rate,
+CreditCurve::CreditCurve(const ChronoDate& valuation_date, const std::string& ticker, const std::vector<CDS>& cds_contracts,
+            const IborSingleCurve& libor_curve,double recovery_rate,
             InterpTypes interp_type):
- valuation_date_{valuation_date},cds_contracts_{cds_contracts},libor_curve_{libor_curve},
+ valuation_date_{valuation_date},ticker_{ticker},cds_contracts_{cds_contracts},libor_curve_{libor_curve},
 recovery_rate_{recovery_rate}, interp_type_{interp_type}
 {
   build_curve();
@@ -25,9 +25,9 @@ void CreditCurve::build_curve() {
     values_.push_back(q);
     auto _g = [&](const double q) {
       (*this).values_.back() = q;
-      double v = std::get<1>(cds_contracts_.at(i).value(valuation_date_, *this, recovery_rate_));
-      if (v == 0.0) v = 1e-12;
-      return v;
+      auto [full_pv, clean_pv] = cds_contracts_.at(i).value(valuation_date_, *this, recovery_rate_);
+      if (clean_pv == 0.0) clean_pv = 1e-12;
+      return clean_pv;
     };
     Iteration *brent = new Brent(1e-7, _g);
     q = brent->solve(1e-3,q);
