@@ -54,7 +54,7 @@ DiscountCurve::DiscountCurve(const ChronoDate& valuation_date,
 }
 
 std::vector<double> DiscountCurve::zero_to_df(const std::vector<double>& rates, const std::vector<double>& times,
-                                             FrequencyTypes freq_type){
+                                             FrequencyTypes freq_type) const{
   std::vector<double> df{};
   df.reserve(rates.size());
   auto f = static_cast<int>(freq_type);
@@ -75,7 +75,7 @@ std::vector<double> DiscountCurve::zero_to_df(const std::vector<double>& rates, 
 }
 
 std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,const std::vector<double>& times,
-                               FrequencyTypes freq_type)
+                               FrequencyTypes freq_type) const
 {
   auto f = static_cast<int>(freq_type);
   if (dfs.size() != times.size())
@@ -97,7 +97,8 @@ std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,con
 }
 
 std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,const std::vector<ChronoDate>& dates,
-                              FrequencyTypes freq_type, DayCountTypes day_count_type){
+                              FrequencyTypes freq_type, DayCountTypes day_count_type) const
+{
   auto f = static_cast<int>(freq_type);
   if (dfs.size() != dates.size())
       throw std::runtime_error("disc facrtors and dates have different sizes");

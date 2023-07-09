@@ -1,5 +1,7 @@
 #include "Application.h"
 #include <finproj/curves/CDS.h>
+#include <finproj/utils/Misc.h>
+namespace plt = matplotlibcpp;
 
 IborSwap Application::create_swap(const ChronoDate& val_date, const ChronoDate& maturity_date, double swap_rate){
   auto accrual = DayCountTypes::THIRTY_E_360;
@@ -97,4 +99,71 @@ std::vector<CreditCurve> Application::create_credit_curves(const ChronoDate& val
     credit_curves.emplace_back(CreditCurve(val_date,ticker, cds_contracts,libor_curve,recovery_rate));
   }
   return credit_curves;
+}
+
+void Application::plot_discount_curve(const IborSingleCurve& curve, const std::string& filename) const {
+  plt::figure();
+  plt::plot(curve.times_, curve.dfs_);
+  plt::title("Interpolated Discount Curve");
+  plt::xlabel("Years");
+  plt::ylabel("Discount Factor");
+  plt::save(filename);
+}
+
+void Application::plot_zero_curve(const IborSingleCurve& curve, const std::string& filename) const {
+  plt::figure();
+  plt::plot(curve.times_, curve.df_to_zero(curve.dfs_,curve.times_,FrequencyTypes::CONTINUOUS));
+  plt::title("Interpolated Zero Curve");
+  plt::xlabel("Years");
+  plt::ylabel("Zero Rate");
+  plt::save(filename);
+}
+void Application::plot_surv_prob_curves(const ChronoDate& val_date,const std::vector<CreditCurve>& ccurves, const std::string& filename) const {
+  plt::figure();
+  for (auto& curve : ccurves){
+    auto years = linspace(0.0,10.0,40);
+    std::vector<double> surv_probs{};
+    std::vector<double> hazard_rates{};
+    hazard_rates.push_back(0.0);
+    for (auto y{0}; y < years.size(); ++y){
+      auto date = val_date.add_years(years[y]);
+      auto q = curve.surv_prob(date);
+      surv_probs.push_back(q);
+      if (y > 0){
+        auto h = -log(surv_probs[y]/surv_probs[y-1])/(years[y] - years[y-1]);
+        hazard_rates.push_back(h);
+      }
+    }
+    plt::plot(years, surv_probs, {{"label", curve.ticker_}});
+  }
+  plt::title("Survival Probability Curves");
+  plt::xlabel("Years");
+  plt::ylabel("Survival Probability (q)");
+  plt::legend();
+  plt::save(filename);
+}
+
+void Application::plot_hazard_curves(const ChronoDate& val_date,const std::vector<CreditCurve>& ccurves, const std::string& filename) const {
+  plt::figure();
+  for (auto& curve : ccurves){
+    auto years = linspace(0.0,10.0,40);
+    std::vector<double> surv_probs{};
+    std::vector<double> hazard_rates{};
+    hazard_rates.push_back(0.0);
+    for (auto y{0}; y < years.size(); ++y){
+      auto date = val_date.add_years(years[y]);
+      auto q = curve.surv_prob(date);
+      surv_probs.push_back(q);
+      if (y > 0){
+        auto h = -log(surv_probs[y]/surv_probs[y-1])/(years[y] - years[y-1]);
+        hazard_rates.push_back(h);
+      }
+    }
+    plt::plot(years, hazard_rates, {{"label", curve.ticker_}});
+  }
+  plt::title("Term Structure Hazard Rates - Quarterly");
+  plt::xlabel("Years");
+  plt::ylabel("Hazard Rate (h)");
+  plt::legend();
+  plt::save(filename);
 }
