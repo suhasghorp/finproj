@@ -18,12 +18,13 @@ std::tuple<double,double,double> CDSBasket::value_gaussian_mc(const ChronoDate& 
                                                      const MatrixXd& correlation_matrix,
                                                      const IborSingleCurve& libor_curve,
                                                      int num_trials,
-                                                     int seed) const
+                                                     int seed,
+                                                     const std::string& random_number_generation) const
 {
   int num_credits = issuer_curves.size();
   if (nth_to_default > num_credits or nth_to_default < 1)
     throw std::runtime_error("nToDefault must be 1 to num_credits");
-  auto default_times = GaussCopula().default_times_gc(issuer_curves,correlation_matrix,num_trials,seed);
+  auto default_times = GaussCopula().default_times_gc(issuer_curves,correlation_matrix,num_trials,seed, random_number_generation);
   auto [rpv01, prot_pv] = value_legs_mc(valuation_date,nth_to_default,default_times,issuer_curves,libor_curve);
   auto spd = prot_pv / rpv01;
   auto value = notional_ * (prot_pv - running_coupon_ * rpv01);

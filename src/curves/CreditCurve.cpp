@@ -1,8 +1,8 @@
 #include <finproj/curves/CreditCurve.h>
-#include <finproj/optim/brent.h>
 #include <finproj/curves/CDS.h>
 #include <ranges>
-#include <iostream>
+#include <boost/math/tools/roots.hpp>
+#include <boost/math/tools/toms748_solve.hpp>
 
 CreditCurve::CreditCurve(const ChronoDate& valuation_date, const std::string& ticker, const std::vector<CDS>& cds_contracts,
             const IborSingleCurve& libor_curve,double recovery_rate,
@@ -29,8 +29,15 @@ void CreditCurve::build_curve() {
       if (clean_pv == 0.0) clean_pv = 1e-12;
       return clean_pv;
     };
-    Iteration *brent = new Brent(1e-7, _g);
-    q = brent->solve(1e-3,q);
+    int digits = std::numeric_limits<double>::digits;
+    int get_digits = (digits * 3) /4;
+    boost::math::tools::eps_tolerance<double> tol(get_digits);
+    const boost::uintmax_t maxit = 50;
+    boost::uintmax_t it = maxit;
+    auto ret = boost::math::tools::bracket_and_solve_root(_g, q, 2.0, false, tol, it);
+    q = ret.first;
+    //Iteration *brent = new Brent(1e-7, _g);
+    //q = brent->solve(1e-3,q);
   }
 }
 

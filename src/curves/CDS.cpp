@@ -1,7 +1,6 @@
 #include <finproj/curves/CDS.h>
 #include <tuple>
 #include <cmath>
-#include <xtensor/xarray.hpp>
 
 CDS::CDS(const ChronoDate &step_in_date, const ChronoDate &maturity_date, double running_coupon, double notional,
          bool long_protection, FrequencyTypes freq_type, DayCountTypes day_count_type, CalendarTypes cal_type,

@@ -26,7 +26,8 @@ add_library(finproj ${HEADER_LIST}
         models/GaussCopula.cpp
         curves/CDSBasket.cpp
         curves/CDSIndexPortfolio.cpp
-        models/StudentTCopula.cpp)
+        models/StudentTCopula.cpp
+        )
 
 # We need this directory, and users of our library will need it too
 target_include_directories(finproj PUBLIC ../include)

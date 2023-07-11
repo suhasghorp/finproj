@@ -10,7 +10,11 @@ class GaussCopula {
   MatrixXd default_times_gc(const std::vector<CreditCurve> &issuer_curves,
                             const MatrixXd& correlationMatrix,
                             int num_trials,
-                            int seed);
+                            int seed,
+                            const std::string& random_number_generation);
+
 };
+
+
 
 #endif//FINPROJ_INCLUDE_FINPROJ_MODELS_GAUSSCOPULA_H_

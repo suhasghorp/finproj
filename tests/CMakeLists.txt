@@ -1,8 +1,8 @@
+
+set(CMAKE_CXX_STANDARD 20)
 # Testing library
 find_package(Catch2 3 REQUIRED)
 # Adds Catch2::Catch2
-
-find_package(Matplot++ REQUIRED)
 
 # Tests need to be added as executables first
 add_executable(tests
@@ -19,7 +19,7 @@ add_executable(tests
         TestCDSBasket.cpp)
 
 # I'm using C++20 in the test
-target_compile_features(tests PRIVATE cxx_std_20)
+#target_compile_features(tests PRIVATE cxx_std_20)
 
 target_compile_options(finproj PRIVATE -Werror)
 set(ENV{PYTHONPATH} "/home/sghorp/miniconda3/bin/python")

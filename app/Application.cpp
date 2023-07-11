@@ -20,7 +20,7 @@ IborDeposit Application::create_deposit(const ChronoDate& val_date, double rate)
   return IborDeposit(settlement_date, maturity_date, rate, depoDCCType);
 }
 
-IborSingleCurve Application::create_swap_curve(const ChronoDate& val_date, std::string&& data_file, InterpTypes interp) {
+IborSingleCurve Application::build_swap_curve(const ChronoDate& val_date, std::string&& data_file, InterpTypes interp) {
   InterpTypes interp_type{interp};
   auto fut_count{0};
   std::vector<IborDeposit> depos{};
@@ -56,7 +56,7 @@ IborSingleCurve Application::create_swap_curve(const ChronoDate& val_date, std::
   return libor_curve;
 }
 
-std::vector<CreditCurve> Application::create_credit_curves(const ChronoDate& val_date, const std::string&& spreads_file,
+std::vector<CreditCurve> Application::build_credit_curves(const ChronoDate& val_date, const std::string&& spreads_file,
                                              const IborSingleCurve& libor_curve, double recovery_rate)
 {
   std::vector<CDS> cds_contracts{};

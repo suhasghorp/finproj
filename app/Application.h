@@ -43,8 +43,8 @@ class Application {
   Application() = default;
   IborDeposit create_deposit(const ChronoDate& val_date, double rate);
   IborSwap create_swap(const ChronoDate& val_date, const ChronoDate& maturity_date, double swap_rate);
-  IborSingleCurve create_swap_curve(const ChronoDate& val_date, std::string&& data_file, InterpTypes interp);
-  std::vector<CreditCurve> create_credit_curves(const ChronoDate& val_date, const std::string&& spreads_file, const IborSingleCurve& libor_curve, double recovery_rate);
+  IborSingleCurve build_swap_curve(const ChronoDate& val_date, std::string&& data_file, InterpTypes interp);
+  std::vector<CreditCurve> build_credit_curves(const ChronoDate& val_date, const std::string&& spreads_file, const IborSingleCurve& libor_curve, double recovery_rate);
   void plot_discount_curve(const IborSingleCurve& curve, const std::string& filename) const;
   void plot_zero_curve(const IborSingleCurve& curve, const std::string& filename) const;
   void plot_surv_prob_curves(const ChronoDate& val_date,const std::vector<CreditCurve>& ccurves, const std::string& filename) const;

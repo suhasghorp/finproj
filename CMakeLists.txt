@@ -5,7 +5,8 @@ project(
         DESCRIPTION "An example project with CMake"
         LANGUAGES CXX)
 
-
+set(CMAKE_CXX_STANDARD 20) # C14 required to compile Torch
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Optionally set things like CMAKE_CXX_STANDARD, CMAKE_POSITION_INDEPENDENT_CODE here
@@ -42,7 +43,7 @@ set(Python3_ROOT_DIR /home/sghorp/miniconda3)
 
 find_package (Python3 COMPONENTS Interpreter Development)
 
-find_package(Matplot++ REQUIRED)
+#add_library(QuantLib::QuantLib STATIC IMPORTED)
 
 # The compiled library code is here
 add_subdirectory(src)

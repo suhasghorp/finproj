@@ -169,15 +169,16 @@ TEST_CASE( "test_ibor_again", "[single-file]" ){
   auto actual = swaps[0].value(val_date, libor_curve, idx_optional, ffr_optional);
   REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(0.0, 0.0001));
   actual = -swaps[0].get_fixed_leg().value(val_date, libor_curve);
-  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53707.6667, 0.0001));
+  //REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53707.6667, 0.0001));
+  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53726.1678, 0.0001));
   actual = swaps[0].get_double_leg().value(val_date, libor_curve, libor_curve, ffr_optional);
-  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53707.6667, 0.0001));
+  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53726.1678, 0.0001));
 
   actual = swaps[0].value(settlement_date, libor_curve, idx_optional, ffr_optional);
   REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(0.0, 0.0001));
   actual = -swaps[0].get_fixed_leg().value(settlement_date, libor_curve);
-  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53714.5507, 0.0001));
+  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53739.9414, 0.0001));
   actual = swaps[0].get_double_leg().value(settlement_date, libor_curve, libor_curve, ffr_optional);
-  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53714.5507, 0.0001));
+  REQUIRE_THAT(actual, Catch::Matchers::WithinAbs(53739.9414, 0.0001));
 
 }

@@ -13,7 +13,8 @@
 #include <fstream>
 #include <string>
 #include <array>
-
+#include <finproj/tabulate/tabulate.h>
+using namespace tabulate;
 
 
 
@@ -92,18 +93,38 @@ TEST_CASE( "test_cds_basket", "[single-file]" ){
   auto basket = CDSBasket(valuation_date,basketMaturity);
   int seed = 42;
   int doF = 5;
-  int num_trials = 5000;
-  std::array<double,6> betas{0.0, 0.25, 0.5, 0.75, 0.90, 0.9999};
-  for (int ntd{1}; ntd < num_credits+1; ++ntd){
-    for (auto beta : betas){
+  Table gauss_copula, student_copula;
+  std::vector<int> num_trials {1000,5000,10000,20000,30000,40000,50000,60000,70000,80000,90000,100000};//, 500000, 1000000};
+  //std::array<double,6> betas{0.0, 0.25, 0.5, 0.75, 0.90, 0.9999};
+  std::array<double,1> betas{0.25};
+  for (int ntd{1}; ntd < num_credits+1; ++ntd) {
+    for (auto beta: betas) {
       auto rho = beta * beta;
       auto corr_matrix = corr_matrix_generator(rho, num_credits);
-      auto [valueg, rpv01g, spdg] = basket.value_gaussian_mc(valuation_date,ntd,issuer_curves,corr_matrix,libor_curve,num_trials,seed);
-      std::cout << "Gaussian spread:" << spdg*10000 << "\n";
-      auto [valuet, rpv01t, spdt] = basket.value_student_t_mc(valuation_date, ntd, issuer_curves, corr_matrix, doF, libor_curve, num_trials,seed);
-      std::cout << "Student-t spread:" << spdt*10000 << "\n";
+      for (int sims: num_trials) {
+        auto [valuep, rpv01p, spdp] = basket.value_gaussian_mc(valuation_date, ntd, issuer_curves, corr_matrix,
+                                                               libor_curve, sims, seed, R"(PSEUDO)");
+        auto [valueq, rpv01q, spdq] = basket.value_gaussian_mc(valuation_date, ntd, issuer_curves, corr_matrix,
+                                                               libor_curve, sims, seed, R"(QUASI)");
+        gauss_copula.add_row({std::to_string(ntd), "Gaussian", "Pseudo", std::to_string(sims), std::to_string(spdp * 10000)});
+        gauss_copula.add_row({std::to_string(ntd), "Gaussian", "Quasi", std::to_string(sims), std::to_string(spdq * 10000)});
+      }
     }
   }
+  std::cout << gauss_copula << std::endl;
+  for (int ntd{1}; ntd < num_credits+1; ++ntd) {
+    for (auto beta: betas) {
+      auto rho = beta * beta;
+      auto corr_matrix = corr_matrix_generator(rho, num_credits);
+      for (int sims: num_trials) {
+        auto [valuet, rpv01t, spdt] = basket.value_student_t_mc(valuation_date, ntd, issuer_curves, corr_matrix,
+                                                                doF, libor_curve, sims, seed);
+        student_copula.add_row({std::to_string(ntd), "Student-t", "Pseudo", std::to_string(sims), std::to_string(spdt * 10000)});
+      }
+    }
+  }
+  std::cout << student_copula << std::endl;
+
   REQUIRE(1 == 1);
 
 

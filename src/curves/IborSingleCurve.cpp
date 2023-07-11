@@ -1,7 +1,8 @@
-#include <finproj/optim/secant.h>
+#include <boost/math/tools/roots.hpp>
+#include <boost/math/tools/toms748_solve.hpp>
+#include <cmath>
 #include <finproj/curves/IborSingleCurve.h>
 #include <ranges>
-#include <cmath>
 
 IborSingleCurve::IborSingleCurve ( const ChronoDate& val_date, const std::vector<IborDeposit>& ibor_deposits,
                 const std::vector<IborFRA>& ibor_fras, const std::vector<IborSwap>& ibor_swaps,
@@ -174,8 +175,16 @@ void IborSingleCurve::build_curve_using_1d_solver() {
         v_fra /= fra.get_notional();
         return v_fra;
       };
-      Iteration *secant1 = new Secant(1e-10, _g);
-      df_mat = secant1->solve(1e-3, 2);
+      int digits = std::numeric_limits<double>::digits;
+      int get_digits = (digits * 3) /4;
+      boost::math::tools::eps_tolerance<double> tol(get_digits);
+      const boost::uintmax_t maxit = 50;
+      boost::uintmax_t it = maxit;
+      auto ret = boost::math::tools::bracket_and_solve_root(_g, df_mat, 2.0, false, tol, it);
+      //std::cout << "x at minimum = " << ret.first << ", f(" << ret.first << ") = " << ret.second << std::endl;
+      df_mat = ret.first;
+      //Iteration *secant1 = new Secant(1e-10, _g);
+      //df_mat = secant1->solve(1e-3, 2);
 
     }
   }
@@ -186,7 +195,7 @@ void IborSingleCurve::build_curve_using_1d_solver() {
     times_.push_back(tmat);
     dfs_.push_back(df_mat);
 
-    auto _f = [&](const double df) {
+    auto _f = [&](double df)  {
       (*this).dfs_.back() = df;
       (*this).interpolator_.fit(times_, dfs_);
       std::optional<DiscountCurve> idx_optional = std::nullopt;
@@ -195,8 +204,15 @@ void IborSingleCurve::build_curve_using_1d_solver() {
       v_swap /= swap.get_fixed_leg().get_notional();
       return v_swap;
     };
-    Iteration *secant1 = new Secant(1e-10, _f);
-    df_mat = secant1->solve(1e-3, 2);
+    int digits = std::numeric_limits<double>::digits;
+    int get_digits = (digits * 3) /4;
+    boost::math::tools::eps_tolerance<double> tol(get_digits);
+    const boost::uintmax_t maxit = 50;
+    boost::uintmax_t it = maxit;
+    auto ret = boost::math::tools::bracket_and_solve_root(_f, df_mat, 2.0, false, tol, it);
+    //Iteration *secant1 = new Secant(1e-10, _f);
+    //df_mat = secant1->solve(1e-3, 2);
+    df_mat = ret.first;
   }
   if (check_refit_)
     check_refits(1e-10,1e-10,1e-5);
