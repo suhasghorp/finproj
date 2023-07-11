@@ -32,12 +32,12 @@ enum class FrequencyTypes {
 class Calendar {
 
  public:
-  Calendar(CalendarTypes calType);
-  ChronoDate adjust(const ChronoDate& dt, const BusDayAdjustTypes busDayConv) const;
-  bool is_business_day(const ChronoDate& dt) const;
-  bool is_holiday(const ChronoDate& dt) const;
-  bool holiday_united_states(const ChronoDate& dt) const;
-  ChronoDate add_business_days(const ChronoDate& dt, unsigned int n) const;
+  explicit Calendar(CalendarTypes calType);
+  [[nodiscard]] ChronoDate adjust(const ChronoDate& dt, const BusDayAdjustTypes busDayConv) const;
+  [[nodiscard]] bool is_business_day(const ChronoDate& dt) const;
+  [[nodiscard]] bool is_holiday(const ChronoDate& dt) const;
+  [[nodiscard]] bool holiday_united_states(const ChronoDate& dt) const;
+  [[nodiscard]] ChronoDate add_business_days(const ChronoDate& dt, unsigned int n) const;
 
  private:
   CalendarTypes calType_;

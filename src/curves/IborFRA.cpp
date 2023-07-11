@@ -10,7 +10,7 @@ IborFRA::IborFRA(const ChronoDate& start_date,
         CalendarTypes cal_type,
         BusDayAdjustTypes bus_day_adjust_type):
         start_date_{start_date},maturity_date_{maturity_date},fra_rate_{fra_rate},
-        day_count_type_{day_count_type},notional_(notional),cal_type_{cal_type},pay_fixed_rate_{pay_fixed_rate},
+        day_count_type_{day_count_type},notional_(notional),pay_fixed_rate_{pay_fixed_rate},cal_type_{cal_type},
         bus_day_adjust_type_{bus_day_adjust_type}, calendar_(Calendar(cal_type_))
 {
 
@@ -25,7 +25,7 @@ IborFRA::IborFRA(const ChronoDate& start_date,
                  CalendarTypes cal_type,
                  BusDayAdjustTypes bus_day_adjust_type):
                 start_date_{start_date},tenor_{tenor},fra_rate_{fra_rate},
-                day_count_type_{day_count_type},notional_(notional),cal_type_{cal_type},pay_fixed_rate_{pay_fixed_rate},
+                day_count_type_{day_count_type},notional_(notional),pay_fixed_rate_{pay_fixed_rate},cal_type_{cal_type},
                 bus_day_adjust_type_{bus_day_adjust_type}, calendar_(Calendar(cal_type_))
 {
   maturity_date_ = start_date_.add_tenor(const_cast<std::string &>(tenor_));

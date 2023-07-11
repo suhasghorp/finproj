@@ -10,10 +10,10 @@ DiscountCurve::DiscountCurve(const ChronoDate& valuation_date,
               FrequencyTypes freq_type,
               DayCountTypes day_count_type,
               InterpTypes interp_type):
-                                                        valuation_date_{valuation_date},
-                                                        freq_type_{freq_type},
-                                                        day_count_type_{day_count_type},
-                                                        interp_type_{interp_type}{
+  valuation_date_{valuation_date},
+  interp_type_{interp_type},
+  freq_type_{freq_type},
+  day_count_type_{day_count_type}{
   interpolator_ = Interpolator(interp_type_);
 
 }
@@ -36,9 +36,10 @@ DiscountCurve::DiscountCurve(const ChronoDate& valuation_date,
 
   auto start_index = 0;
   if (num_points_ > 0) {
-    if (df_dates_[0] == valuation_date_)
+    if (df_dates_[0] == valuation_date_) {
       dfs_[0] = df_values_[0];
       start_index = 1;
+    }
   }
   for (auto i = start_index; i < num_points_; ++i){
       auto t = (df_dates_[i] - valuation_date_) / 365.0;
@@ -58,7 +59,7 @@ std::vector<double> DiscountCurve::zero_to_df(const std::vector<double>& rates, 
   std::vector<double> df{};
   df.reserve(rates.size());
   auto f = static_cast<int>(freq_type);
-  for (int i = 0; i < rates.size(); ++i){
+  for (size_t i = 0; i < rates.size(); ++i){
       auto t = fmax(times[i],gSmall );
       if (freq_type == FrequencyTypes::CONTINUOUS)
         df.push_back(-exp(rates[i] * t));
@@ -83,7 +84,7 @@ std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,con
   auto num_times = times.size();
   std::vector<double> zero_rates{};
   zero_rates.reserve(num_times);
-  for (int i = 0; i < num_times; ++i){
+  for (size_t i = 0; i < num_times; ++i){
       auto t = fmax(times.at(i),gSmall);
       if (freq_type == FrequencyTypes::CONTINUOUS){
         zero_rates.push_back(-log(dfs[i]) / t);
@@ -105,7 +106,7 @@ std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,con
   auto num_dates = dates.size();
   std::vector<double> zero_rates{};
   zero_rates.reserve(num_dates);
-  for (int i = 0; i < num_dates; ++i){
+  for (size_t i = 0; i < num_dates; ++i){
       auto year_frac = std::get<0>(DayCount(day_count_type).year_frac(valuation_date_,dates[i], FrequencyTypes::ANNUAL));
       auto t = fmax(year_frac,gSmall);
       if (freq_type == FrequencyTypes::CONTINUOUS){
@@ -132,10 +133,10 @@ double DiscountCurve::df(double time) const{
   return df;
 }
 
-std::vector<double> DiscountCurve::df(const std::vector<ChronoDate>& dates, DayCountTypes day_count_type){
+std::vector<double> DiscountCurve::df(const std::vector<ChronoDate>& dates){
   std::vector<double> dfv{};
   dfv.reserve(dates.size());
-  for (int i = 0; i < dates.size(); ++i){
+  for (size_t i = 0; i < dates.size(); ++i){
       auto f = df(dates[i]);
       dfv.push_back(f);
   }
@@ -150,7 +151,7 @@ double DiscountCurve::df(const ChronoDate& date, DayCountTypes day_count_type) c
 
 std::vector<double> DiscountCurve::zero_rates(const std::vector<ChronoDate>& dates, FrequencyTypes freq_type,
                               DayCountTypes day_count_type){
-  auto dfs = df(dates,day_count_type);
+  auto dfs = df(dates);
   auto zeros = df_to_zero(dfs,dates,freq_type,day_count_type);
   return zeros;
 }
@@ -179,7 +180,7 @@ std::vector<double> DiscountCurve::swap_rates(const ChronoDate& effective_date, 
       auto pv01 = 0.0;
       auto discf = 1.0;
       double par_rate{0.0};
-      for (auto next_dt : flow_dates | std::views::drop(1)) {
+      for (const auto& next_dt : flow_dates | std::views::drop(1)) {
         discf = df(next_dt);
         auto alpha = std::get<0>(day_cc.year_frac(prev_dt, next_dt, FrequencyTypes::ANNUAL));
         pv01 += alpha * discf;

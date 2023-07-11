@@ -90,7 +90,7 @@ double Interpolator::interpolate(double t) const{
     }
   } else if (inter_type_ == InterpTypes::FINCUBIC_ZERO_RATES) {
     std::vector<double> zero_rates{};
-    for (int j{0}; j < dfs_.size();++j){
+    for (size_t j{0}; j < dfs_.size();++j){
       zero_rates.push_back(-log(dfs_[j]) / (times_[j] + small));
     }
     if (times_[0] == 0.0)

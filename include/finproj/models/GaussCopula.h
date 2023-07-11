@@ -11,7 +11,8 @@ class GaussCopula {
                             const MatrixXd& correlationMatrix,
                             int num_trials,
                             int seed,
-                            const std::string& random_number_generation);
+                            const std::string& random_number_generation) const;
+  MatrixXd get_sobol_random_boost(const int num_trials, const int num_credits) const;
 
 };
 

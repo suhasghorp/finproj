@@ -17,7 +17,7 @@ double CDSIndexPortfolio::intrinsic_rpv01(const ChronoDate& valuation_date,const
   auto num_credits = issuer_curves.size();
   auto cds_contract = CDS(step_in_date,maturity_date,0.0);
   auto intrinsic_rpv01 = 0.0;
-  for (auto m{0};m<num_credits;++m){
+  for (size_t m{0};m<num_credits;++m){
     auto [full_rpv01, clean_rpv01] = cds_contract.risky_pv01(valuation_date,issuer_curves[m]);
     intrinsic_rpv01 += clean_rpv01;
   }
@@ -32,7 +32,7 @@ double CDSIndexPortfolio::intrinsic_protection_leg_pv(const ChronoDate& valuatio
   auto cds_contract = CDS(step_in_date,maturity_date,0.0, 1.0);
   auto intrinsic_prot_pv = 0.0;
   auto standard_rec_rate = 0.4;
-  for (auto m{0};m<num_credits;++m){
+  for (size_t m{0};m<num_credits;++m){
     auto protection_pv = cds_contract.protection_leg_pv(valuation_date,issuer_curves[m],standard_rec_rate);
     intrinsic_prot_pv += protection_pv;
   }

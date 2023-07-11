@@ -6,7 +6,8 @@
 #include <ranges>
 
 ChronoDate::ChronoDate(int year, unsigned month, unsigned day) :
-                                                                 date_{ date::year{year} / date::month{month} / date::day{day} }
+                                                                 date_{ date::year{year} / date::month{month} / date::day{day} },
+                                                                 serial_date_{0}
 {
   if (!date_.ok())		// std::chrono member function to check if valid date
   {
@@ -17,7 +18,7 @@ ChronoDate::ChronoDate(int year, unsigned month, unsigned day) :
   reset_serial_date_();
 }
 
-ChronoDate::ChronoDate(const Date& ymd) : date_{ ymd }{
+ChronoDate::ChronoDate(const Date& ymd) : date_{ ymd },serial_date_{0}{
   if (!date_.ok()){	// std::chrono member function to check if valid date
     std::runtime_error e("ChronoDate constructor: Invalid year_month_day input.");
     throw e;
@@ -25,7 +26,7 @@ ChronoDate::ChronoDate(const Date& ymd) : date_{ ymd }{
   reset_serial_date_();
 }
 
-ChronoDate::ChronoDate(const std::string& str){
+ChronoDate::ChronoDate(const std::string& str):date_{},serial_date_{0}{
   auto splits = split(str,"/");
   unsigned int m = stoul(splits.at(0));
   unsigned int d = stoul(splits.at(1));
@@ -34,7 +35,14 @@ ChronoDate::ChronoDate(const std::string& str){
   reset_serial_date_();
 }
 
-ChronoDate::ChronoDate(const ChronoDate& cd) : date_{ cd.date_ }, serial_date_{cd.serial_date_} {}
+ChronoDate::ChronoDate(const ChronoDate& cd) = default;
+
+ChronoDate& ChronoDate::operator=(const ChronoDate& chronodate2) {
+  if (this != &chronodate2)			// beware of d = d;
+    date_ = chronodate2.date_;
+  reset_serial_date_();
+  return *this;
+}
 
 ChronoDate::ChronoDate() :date_{ date::year(1970), date::month{1}, date::day{1} },
                            serial_date_{ 0 } { }
@@ -69,8 +77,8 @@ std::chrono::year_month_day ChronoDate::ymd() const {
 }
 
 ChronoDate ChronoDate::add_years(double rhs_years) const {
-  int mmi = static_cast<int>(rhs_years * 12.0d);
-  int ddi = static_cast<int>((rhs_years * 12.0d - mmi) * gdays_in_month);
+  int mmi = static_cast<int>(rhs_years * 12.0);
+  int ddi = static_cast<int>((rhs_years * 12.0 - mmi) * gdays_in_month);
   Date new_date = date_ + date::months(mmi);
   if (!new_date.ok()){
     new_date = new_date.year() / new_date.month() / 28;
@@ -163,7 +171,7 @@ ChronoDate ChronoDate::add_weeks(int rhs_weeks) const {
   if (!new_date.ok()){
     new_date = date_.year() / date_.month() / date::day{ days_in_month() };
   }
-  return {new_date};
+  return ChronoDate{new_date};
 }
 
 ChronoDate ChronoDate::add_months(int rhs_months) const {
@@ -173,7 +181,7 @@ ChronoDate ChronoDate::add_months(int rhs_months) const {
   if (!new_date.ok()){
     new_date = date_.year() / date_.month() / date::day{ days_in_month() };
   }
-  return {new_date};
+  return ChronoDate{new_date};
 }
 
 ChronoDate ChronoDate::add_weekdays(int num_days) const {
@@ -206,7 +214,7 @@ ChronoDate ChronoDate::add_days(int rhs_days) const {
     throw e;
   }
 
-  return {new_date};
+  return ChronoDate{new_date};
 }
 
 ChronoDate ChronoDate::add_tenor(const std::string& tenor) const {
@@ -287,7 +295,7 @@ bool ChronoDate::is_eom() const {
 }
 
 ChronoDate ChronoDate::eom() const {
-  return {Date{date_.year()/date_.month()/date::last}};
+  return ChronoDate{Date{date_.year()/date_.month()/date::last}};
 }
 
 

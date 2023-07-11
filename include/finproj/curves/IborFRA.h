@@ -30,14 +30,16 @@ class IborFRA {
   double get_notional() const;
 
  private:
+
+  ChronoDate start_date_{}, maturity_date_{} ;
+  std::string tenor_{};
+  double fra_rate_{};
+  DayCountTypes day_count_type_{};
+  double notional_{};
+  bool pay_fixed_rate_{};
   CalendarTypes cal_type_{};
   BusDayAdjustTypes bus_day_adjust_type_{};
-  double notional_{};
-  DayCountTypes day_count_type_{};
-  double fra_rate_{};
-  bool pay_fixed_rate_{};
-  ChronoDate maturity_date_{}, start_date_{};
-  std::string tenor_{};
+
   Calendar calendar_;
 
 };

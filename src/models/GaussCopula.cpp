@@ -6,6 +6,7 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/variate_generator.hpp>
 
+
 /*MatrixXd get_sobol_random_ql(const int num_trials, const int num_credits) {
   MatrixXd x = MatrixXd::Zero(num_trials, num_credits);
   MoroInverseCumulativeNormal invGauss;
@@ -24,7 +25,7 @@
   return x;
 }*/
 
-MatrixXd get_sobol_random_boost(const int num_trials, const int num_credits) {
+MatrixXd GaussCopula::get_sobol_random_boost(const int num_trials, const int num_credits) const {
   MatrixXd x = MatrixXd::Zero(num_trials, num_credits);
   // Create a generator
   typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double> > quasi_random_gen_t;
@@ -50,22 +51,23 @@ MatrixXd GaussCopula::default_times_gc(const std::vector<CreditCurve>& issuer_cu
                                        const MatrixXd& correlationMatrix,
                                        const int num_trials,
                                        int seed,
-                                       const std::string& random_number_generation)
+                                       const std::string& random_number_generation) const
 {
   int num_credits = static_cast<int>(issuer_curves.size());
   MatrixXd x;
   if (random_number_generation == "PSEUDO"){
     std::mt19937_64 mtEngine(seed);
     std::normal_distribution<> nd;
-    x = MatrixXd::Zero(num_credits,num_trials).unaryExpr([&](double dummy){return nd(mtEngine);});
+    x = MatrixXd::Zero(num_credits,num_trials).unaryExpr([&](double dummy){dummy = 0;return nd(mtEngine);});
   } else if (random_number_generation == "QUASI"){
     x = get_sobol_random_boost(num_trials,num_credits);
   }
 
-  auto m = x.mean();
+  //auto m = x.mean();
   MatrixXd L( correlationMatrix.llt().matrixL() );
   auto y = (L * x).eval();
   MatrixXd corr_times = MatrixXd::Zero(num_credits, 2 * num_trials);
+
   for (auto i{0};i<num_credits;++i){
     for (auto t{0}; t < num_trials;++t){
       auto g = y(i, t);

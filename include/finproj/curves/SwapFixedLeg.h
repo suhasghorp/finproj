@@ -31,6 +31,7 @@ class SwapFixedLeg {
  private:
   ChronoDate eff_date_{},termination_date_{}, maturity_date_{};
   SwapTypes leg_type_{};
+  std::string tenor_{};
   double coupon_{};
   FrequencyTypes freq_type_{};
   DayCountTypes day_count_type_{};
@@ -40,7 +41,6 @@ class SwapFixedLeg {
   BusDayAdjustTypes bus_day_adjust_type_{};
   DateGenRuleTypes date_gen_rule_type_{};
   bool end_of_month_{};
-  std::string tenor_{};
   std::vector<ChronoDate> payment_dates_{};
   std::vector<double> payments_{}, payment_dfs_{}, payment_pvs_{}, cumulative_pvs_{};
 

@@ -11,7 +11,7 @@ class StudentTCopula {
                             const MatrixXd& correlationMatrix,
                             float degrees_of_freedom,
                             int num_trials,
-                            int seed);
+                            int seed) const;
 };
 
 #endif//FINPROJ_INCLUDE_FINPROJ_MODELS_STUDENTTCOPULA_H_

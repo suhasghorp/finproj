@@ -22,7 +22,7 @@ SwapFloatLeg::SwapFloatLeg(const ChronoDate &eff_date, const std::string &tenor,
                            FrequencyTypes freq_type, DayCountTypes day_count_type, double notional, double principal,
                            int payment_lag, CalendarTypes cal_type, BusDayAdjustTypes bus_day_adjust_type,
                            DateGenRuleTypes date_gen_rule_type, bool end_of_month):
-eff_date_{eff_date},tenor_{tenor},leg_type_{leg_type},spread_{spread},freq_type_{freq_type},
+eff_date_{eff_date},leg_type_{leg_type},tenor_{tenor},spread_{spread},freq_type_{freq_type},
 day_count_type_{day_count_type},notional_{notional},principal_{principal},payment_lag_{payment_lag},cal_type_{cal_type},
 bus_day_adjust_type_{bus_day_adjust_type},date_gen_rule_type_{date_gen_rule_type},end_of_month_{end_of_month}
 {
@@ -76,7 +76,7 @@ double SwapFloatLeg::value(const ChronoDate& val_date, const DiscountCurve& disc
   auto num_payments = payment_dates_.size();
   auto index_basis = index_curve.day_count_type_;
   auto index_day_counter = DayCount(index_basis);
-  for (auto i{0}; i < num_payments; ++i){
+  for (size_t i{0}; i < num_payments; ++i){
     pmnt_dt = payment_dates_.at(i);
     if (pmnt_dt > val_date){
       auto start_accrued_dt = start_accrual_dates_.at(i);

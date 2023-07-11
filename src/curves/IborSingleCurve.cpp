@@ -87,7 +87,7 @@ void IborSingleCurve::validate_inputs(){
   auto longest_swap_cpn_dates = longest_swap.get_fixed_leg().get_payment_dates();
   for (auto swap : ibor_swaps_ | std::views::take(ibor_swaps_.size() - 1)){
     auto swap_cpn_dates = swap.get_fixed_leg().get_payment_dates();
-    for (int i{0}; i < swap_cpn_dates.size();++i){
+    for (size_t i{0}; i < swap_cpn_dates.size();++i){
       if (swap_cpn_dates[i] != longest_swap_cpn_dates[i]){
         throw std::runtime_error("Swap coupons are not on the same date grid.");
       }
@@ -180,7 +180,7 @@ void IborSingleCurve::build_curve_using_1d_solver() {
       boost::math::tools::eps_tolerance<double> tol(get_digits);
       const boost::uintmax_t maxit = 50;
       boost::uintmax_t it = maxit;
-      auto ret = boost::math::tools::bracket_and_solve_root(_g, df_mat, 2.0, false, tol, it);
+      auto ret = boost::math::tools::bracket_and_solve_root(_g, df_mat, 2.0, df_mat > 1.0 ? true:false, tol, it);
       //std::cout << "x at minimum = " << ret.first << ", f(" << ret.first << ") = " << ret.second << std::endl;
       df_mat = ret.first;
       //Iteration *secant1 = new Secant(1e-10, _g);

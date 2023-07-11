@@ -7,7 +7,7 @@ MatrixXd StudentTCopula::default_times(const std::vector<CreditCurve> &issuer_cu
                           const MatrixXd& correlationMatrix,
                           float degrees_of_freedom,
                           int num_trials,
-                          int seed)
+                          int seed) const
 {
   int num_credits = static_cast<int>(issuer_curves.size());
 
@@ -16,7 +16,7 @@ MatrixXd StudentTCopula::default_times(const std::vector<CreditCurve> &issuer_cu
   std::default_random_engine generator(seed);
 
   MatrixXd x = MatrixXd::Zero(num_credits,num_trials).unaryExpr([&](double dummy){return nd(mtEngine);});
-  auto m = x.mean();
+  //auto m = x.mean();
   MatrixXd L( correlationMatrix.llt().matrixL() );
   auto y = (L * x).eval();
 

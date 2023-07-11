@@ -88,7 +88,7 @@ void CDS::calc_flows() {
   accrual_factors_.push_back(0.0);
   flows_.push_back(0.0);
   auto num_flows = payment_dates.size();
-  for (int i{1};i<num_flows;++i){
+  for (size_t i{1};i<num_flows;++i){
     auto t0 = payment_dates.at(i - 1);
     auto t1 = payment_dates.at(i);
     auto accrual_factor = std::get<0>(day_count.year_frac(t0, t1, FrequencyTypes::ANNUAL));
@@ -98,9 +98,9 @@ void CDS::calc_flows() {
   }
 }
 
-std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve,int pv01_method) const{
+std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve) const{
   std::vector<double> payment_times{};
-  for (int i{0};i < adjusted_dates_.size(); ++i){
+  for (size_t i{0};i < adjusted_dates_.size(); ++i){
     auto t = (adjusted_dates_.at(i) - valuation_date)/365.0;
     payment_times.push_back(t);
   }
@@ -121,7 +121,7 @@ std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, cons
   auto full_rpv01 = q1 * z1 * year_fracs.at(1);
   full_rpv01 = full_rpv01 + z1 * (qeff - q1) * accrual_factorPCDToNow * couponAccruedIndicator;
   full_rpv01 += 0.5 * z1 * (qeff - q1) * (year_fracs.at(1) - accrual_factorPCDToNow) * couponAccruedIndicator;
-  for (int i{2}; i<payment_times.size();++i){
+  for (size_t i{2}; i<payment_times.size();++i){
     auto t2 = payment_times.at(i);
     auto q2 = credit_interp.interpolate(t2);
     auto z2 = rates_interp.interpolate(t2);
@@ -141,7 +141,7 @@ std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, cons
 }
 
 double CDS::protection_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
-                         double recovery_rate,int num_of_steps,int prot_method) const
+                         double recovery_rate,int num_of_steps) const
 {
   auto teff = (step_in_date_ - valuation_date) / 365.0;
   auto tmat = (maturity_date_ - valuation_date) / 365.0;
@@ -170,12 +170,12 @@ double CDS::protection_leg_pv(const ChronoDate& valuation_date, const CreditCurv
 }
 
 std::tuple<double,double> CDS::value(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
-                                 double recovery_rate, int pv01_method, int prot_method, int num_of_steps)
+                                 double recovery_rate, int num_of_steps)
 {
-  auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+  auto rpv01 = risky_pv01(valuation_date,credit_curve);
   auto full_rpv01 = std::get<0>(rpv01);
   auto clean_rpv01 = std::get<1>(rpv01);
-  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps,prot_method);
+  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps);
   auto fwd_df = 1.0;
   auto long_prot = long_protection_ ? 1 : -1;
   auto full_pv = fwd_df * long_prot * (prot_pv - running_coupon_ * full_rpv01 * notional_);
@@ -183,22 +183,21 @@ std::tuple<double,double> CDS::value(const ChronoDate& valuation_date, const Cre
   return {full_pv, clean_pv};
 }
 
-double CDS::par_spread(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int pv01_method,
-                  int prot_method, int num_of_steps) const
+double CDS::par_spread(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate, int num_of_steps) const
 {
-  auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+  auto rpv01 = risky_pv01(valuation_date,credit_curve);
   auto clean_rpv01 = std::get<1>(rpv01);
-  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps,prot_method);
+  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps);
   auto spd = prot_pv / clean_rpv01 / notional_;
   return spd;
 }
 
 double CDS::clean_price(const ChronoDate& valuation_date, const CreditCurve& credit_curve,double recovery_rate,
-                        int pv01_method, int prot_method, int num_of_steps) const
+                        int num_of_steps) const
 {
-  auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+  auto rpv01 = risky_pv01(valuation_date,credit_curve);
   auto clean_rpv01 = std::get<1>(rpv01);
-  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps,prot_method);
+  auto prot_pv = protection_leg_pv(valuation_date,credit_curve,recovery_rate,num_of_steps);
   auto fwd_df = 1.0;
   auto clean_pv = fwd_df * (prot_pv - running_coupon_ * clean_rpv01 * notional_);
   auto clean_price = (notional_ - clean_pv) / notional_ * 100.0;
@@ -220,10 +219,9 @@ double CDS::accrued_interest() const {
     return long_prot * accrued_interest;
 }
 
-double CDS::premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve,
-                      int pv01_method) const
+double CDS::premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve) const
 {
-    auto rpv01 = risky_pv01(valuation_date,credit_curve,pv01_method);
+    auto rpv01 = risky_pv01(valuation_date,credit_curve);
     auto full_rpv01 = std::get<0>(rpv01);
     auto v = full_rpv01 * notional_ * running_coupon_;
     return v;

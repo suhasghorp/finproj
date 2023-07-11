@@ -12,10 +12,9 @@ IborSwap::IborSwap(const ChronoDate& eff_date, const ChronoDate& termination_dat
                    BusDayAdjustTypes bus_day_adjust_type,
                    DateGenRuleTypes date_gen_rule_type):
 eff_date_{eff_date},termination_date_{termination_date},fixed_leg_type_{fixed_leg_type},fixed_coupon_{fixed_coupon},
-fixed_freq_type_{fixed_freq_type},fixed_day_count_type_{fixed_day_count_type},
-notional_{notional},double_spread_{double_spread},double_freq_type_{double_freq_type},
-double_day_count_type_{double_day_count_type},cal_type_{cal_type},
-bus_day_adjust_type_{bus_day_adjust_type},date_gen_rule_type_{date_gen_rule_type}
+notional_{notional},double_spread_{double_spread},fixed_freq_type_{fixed_freq_type},double_freq_type_{double_freq_type},
+fixed_day_count_type_{fixed_day_count_type},double_day_count_type_{double_day_count_type},cal_type_{cal_type},bus_day_adjust_type_{bus_day_adjust_type},
+date_gen_rule_type_{date_gen_rule_type}
 {
   Calendar calendar{cal_type};
   maturity_date_ = calendar.adjust(termination_date_, bus_day_adjust_type_);

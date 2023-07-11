@@ -63,7 +63,6 @@ bool Calendar::is_holiday(const ChronoDate& dt) const {
 }
 
 ChronoDate Calendar::add_business_days(const ChronoDate& dt, unsigned int n) const {
-  auto orig = dt.ymd();
   auto new_dt = ChronoDate(dt);
   while (n > 0) {
     new_dt = new_dt.add_days(1);

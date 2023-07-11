@@ -21,9 +21,10 @@ enum class PeriodTypes {
 class ChronoDate {
  public:
   ChronoDate(int year, unsigned month, unsigned day);
-  ChronoDate(const Date& ymd);
+  explicit ChronoDate(const Date& ymd);
   ChronoDate(const ChronoDate& cd);
-  ChronoDate(const std::string& str);
+  ChronoDate& operator = (const ChronoDate& chronodate2);
+  explicit ChronoDate(const std::string& str);
   ChronoDate();
 
   // Accessors:
@@ -46,17 +47,18 @@ class ChronoDate {
   [[nodiscard]] ChronoDate add_tenor(const std::string& tenor) const ;
 
   // Operators
+
   int operator - (const ChronoDate& rhs) const;
   bool operator == (const ChronoDate& rhs) const;
   std::strong_ordering operator <=> (const ChronoDate& rhs) const;
 
   // Check state:
-  bool is_eom() const;
-  unsigned days_in_month() const;
-  bool leap_year() const;
-  bool is_weekend() const;
-  date::weekday weekday() const;
-  bool is_last_day_of_feb() const;
+  [[nodiscard]] bool is_eom() const;
+  [[nodiscard]] unsigned days_in_month() const;
+  [[nodiscard]] bool leap_year() const;
+  [[nodiscard]] bool is_weekend() const;
+  [[nodiscard]] date::weekday weekday() const;
+  [[nodiscard]] bool is_last_day_of_feb() const;
 
   // friend operator so that we can output date details with cout
   friend std::ostream& operator << (std::ostream& os, const ChronoDate& rhs);

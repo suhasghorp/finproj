@@ -35,13 +35,16 @@ class IborDeposit {
 
 
  private:
+
+
+
+  ChronoDate start_date_{}, maturity_date_{};
+  std::string tenor_{};
+  double deposit_rate_{};
+  DayCountTypes day_count_type_{};
+  double notional_{};
   CalendarTypes cal_type_{};
   BusDayAdjustTypes bus_day_adjust_type_{};
-  double notional_{};
-  DayCountTypes day_count_type_{};
-  double deposit_rate_{};
-  ChronoDate maturity_date_{}, start_date_{};
-  std::string tenor_{};
   Calendar calendar_;
 };
 

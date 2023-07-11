@@ -16,9 +16,9 @@ class Interpolator{
  public:
   Interpolator(const std::vector<double>& times, const std::vector<double>& dfs, InterpTypes inter_type);
   Interpolator();
-  Interpolator(InterpTypes inter_type);
+  explicit Interpolator(InterpTypes inter_type);
   void fit(const std::vector<double>& times, const std::vector<double>& dfs);
-  double interpolate(double t) const ;
+  [[nodiscard]] double interpolate(double t) const ;
 
  private:
   std::vector<double> times_{};

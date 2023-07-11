@@ -25,7 +25,7 @@ SwapFixedLeg::SwapFixedLeg(const ChronoDate& eff_date, const std::string& tenor,
                            BusDayAdjustTypes bus_day_adjust_type,
                            DateGenRuleTypes date_gen_rule_type,
                            bool end_of_month):
-                                                eff_date_{eff_date},tenor_{tenor},leg_type_{leg_type},coupon_{coupon},freq_type_{freq_type},
+                                                eff_date_{eff_date},leg_type_{leg_type},tenor_{tenor},coupon_{coupon},freq_type_{freq_type},
                                                 day_count_type_{day_count_type},notional_{notional},principal_{principal},payment_lag_{payment_lag},cal_type_{cal_type},
                                                 bus_day_adjust_type_{bus_day_adjust_type},date_gen_rule_type_{date_gen_rule_type},end_of_month_{end_of_month}
 {
@@ -83,7 +83,7 @@ double SwapFixedLeg::value(const ChronoDate& val_date, const DiscountCurve& disc
   double leg_pv{},df_pmnt{};
   ChronoDate pmnt_dt{};
   auto num_payments = payment_dates_.size();
-  for (auto i{0}; i < num_payments; ++i){
+  for (size_t i{0}; i < num_payments; ++i){
     pmnt_dt = payment_dates_.at(i);
     auto pmnt_amount = payments_.at(i);
     if (pmnt_dt > val_date){
