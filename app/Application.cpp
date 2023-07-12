@@ -167,3 +167,29 @@ void Application::plot_hazard_curves(const ChronoDate& val_date,const std::vecto
   plt::legend();
   plt::save(filename);
 }
+
+void Application::plot_kth_to_default_spreads(const std::string& dist_type, const std::vector<double>& ntd, const std::vector<double>& spreads_pseudo,
+                                       const std::vector<double>& spreads_quasi, const std::string& filename) const
+{
+  plt::figure();
+  plt::plot(ntd, spreads_pseudo, {{"label", "pseudo-random"}});
+  plt::plot(ntd, spreads_quasi, {{"label", "quasi-random"}});
+  plt::title(dist_type + "- Basket CDS Fair Spread");
+  plt::xlabel("k-th to default");
+  plt::ylabel("Credit Spread (bps)");
+  plt::legend();
+  plt::save(filename);
+}
+
+void Application::plot_spread_convergence(const std::string& dist_type, const std::vector<double>& sims, const std::vector<double>& spreads_converge_pseudo,
+                             const std::vector<double>& spreads_converge_quasi, const std::string& filename) const
+{
+  plt::figure();
+  plt::plot(sims, spreads_converge_pseudo, {{"label", "pseudo-random"}});
+  plt::plot(sims, spreads_converge_quasi, {{"label", "quasi-random"}});
+  plt::title(dist_type + "- Convergence");
+  plt::xlabel("Num of Simulations");
+  plt::ylabel("Credit Spread (bps)");
+  plt::legend();
+  plt::save(filename);
+}

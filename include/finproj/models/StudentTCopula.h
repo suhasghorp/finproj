@@ -7,11 +7,12 @@ using namespace Eigen;
 
 class StudentTCopula {
  public:
-  MatrixXd default_times(const std::vector<CreditCurve> &issuer_curves,
+  static MatrixXd default_times(const std::vector<CreditCurve> &issuer_curves,
                             const MatrixXd& correlationMatrix,
                             float degrees_of_freedom,
                             int num_trials,
-                            int seed) const;
+                            int seed,
+                         const std::string& random_number_generation) ;
 };
 
 #endif//FINPROJ_INCLUDE_FINPROJ_MODELS_STUDENTTCOPULA_H_

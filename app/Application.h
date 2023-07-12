@@ -49,7 +49,10 @@ class Application {
   void plot_zero_curve(const IborSingleCurve& curve, const std::string& filename) const;
   void plot_surv_prob_curves(const ChronoDate& val_date,const std::vector<CreditCurve>& ccurves, const std::string& filename) const;
   void plot_hazard_curves(const ChronoDate& val_date,const std::vector<CreditCurve>& ccurves, const std::string& filename) const;
-
+  void plot_kth_to_default_spreads(const std::string& dist_type, const std::vector<double>& ntd, const std::vector<double>& spreads_pseudo,
+                                         const std::vector<double>& spreads_quasi, const std::string& filename) const;
+  void plot_spread_convergence(const std::string& dist_type, const std::vector<double>& sims, const std::vector<double>& spreads_converge_pseudo,
+                                   const std::vector<double>& spreads_converge_quasi, const std::string& filename) const;
 
 };
 

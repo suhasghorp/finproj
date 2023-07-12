@@ -7,12 +7,11 @@ using namespace Eigen;
 
 class GaussCopula {
  public:
-  MatrixXd default_times_gc(const std::vector<CreditCurve> &issuer_curves,
+  static MatrixXd default_times_gc(const std::vector<CreditCurve> &issuer_curves,
                             const MatrixXd& correlationMatrix,
                             int num_trials,
                             int seed,
-                            const std::string& random_number_generation) const;
-  MatrixXd get_sobol_random_boost(const int num_trials, const int num_credits) const;
+                            const std::string& random_number_generation) ;
 
 };
 

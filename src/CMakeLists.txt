@@ -35,7 +35,7 @@ target_include_directories(finproj PUBLIC ../include)
 # This depends on (header only) boost
 target_link_libraries(finproj PRIVATE libInterpolate::Interpolate Eigen3::Eigen Boost::boost)
 
-target_compile_options(finproj PRIVATE) # -Wall -Wextra -pedantic -Werror)
+target_compile_options(finproj PRIVATE -Wall -Wextra -pedantic -Werror)
 
 # All users of this library will need at least C++11
 target_compile_features(finproj PUBLIC cxx_std_20)

@@ -39,12 +39,13 @@ std::tuple<double,double,double> CDSBasket::value_student_t_mc(const ChronoDate&
                                                       const float degrees_of_freedom,
                                                       const IborSingleCurve& libor_curve,
                                                       int num_trials,
-                                                      int seed) const
+                                                      int seed,
+                                                      const std::string& random_number_generation) const
 {
   int num_credits = issuer_curves.size();
   if (nth_to_default > num_credits or nth_to_default < 1)
     throw std::runtime_error("nToDefault must be 1 to num_credits");
-  auto default_times = StudentTCopula().default_times(issuer_curves,correlation_matrix,degrees_of_freedom,num_trials,seed);
+  auto default_times = StudentTCopula().default_times(issuer_curves,correlation_matrix,degrees_of_freedom,num_trials,seed,random_number_generation);
   auto [rpv01, prot_pv] = value_legs_mc(valuation_date,nth_to_default,default_times,issuer_curves,libor_curve);
   auto spd = prot_pv / rpv01;
   auto value = notional_ * (prot_pv - running_coupon_ * rpv01);

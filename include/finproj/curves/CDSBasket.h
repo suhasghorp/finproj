@@ -30,7 +30,8 @@ class CDSBasket {
                                                         const float degrees_of_freedom,
                                                        const IborSingleCurve& libor_curve,
                                                        int num_trials,
-                                                       int seed) const;
+                                                       int seed,
+                                                        const std::string& random_number_generation) const;
   std::tuple<double,double> value_legs_mc(const ChronoDate& valuation_date, int nth_to_default,
                                            const MatrixXd& default_times,
                                            const std::vector<CreditCurve>& issuer_curves,

@@ -19,7 +19,7 @@ void Interpolator::fit(const std::vector<double>& times, const std::vector<doubl
 }
 
 double Interpolator::interpolate(double t) const{
-  double ret;
+  double ret{999};
 
   if (t < small)
     return 1.0;

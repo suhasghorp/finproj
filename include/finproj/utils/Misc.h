@@ -3,7 +3,11 @@
 
 #include <vector>
 #include <cmath>
+#include <fstream>
 #include <Eigen/Dense>
+#include <boost/random/sobol.hpp>
+#include <boost/random/uniform_01.hpp>
+#include <boost/random/variate_generator.hpp>
 using namespace Eigen;
 
 constexpr double gSmall = 1e-12;
@@ -21,6 +25,79 @@ std::vector<T> linspace(T a, T b, std::size_t N) {
   for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
     *x = val;
   return xs;
+}
+
+//https://www.johndcook.com/blog/normal_cdf_inverse/
+inline double RationalApproximation(double t)
+{
+  // Abramowitz and Stegun formula 26.2.23.
+  // The absolute value of the error should be less than 4.5 e-4.
+  double c[] = {2.515517, 0.802853, 0.010328};
+  double d[] = {1.432788, 0.189269, 0.001308};
+  return t - ((c[2]*t + c[1])*t + c[0]) /
+      (((d[2]*t + d[1])*t + d[0])*t + 1.0);
+}
+inline double NormalCDFInverse(double p)
+{
+  if (p <= 0.0 || p >= 1.0)
+  {
+    std::stringstream os;
+    os << "Invalid input argument (" << p
+       << "); must be larger than 0 but less than 1.";
+    throw std::invalid_argument( os.str() );
+  }
+
+  // See article above for explanation of this section.
+  if (p < 0.5)
+  {
+    // F^-1(p) = - G^-1(p)
+    return -RationalApproximation( sqrt(-2.0*log(p)) );
+  }
+  else
+  {
+    // F^-1(p) = G^-1(1-p)
+    return RationalApproximation( sqrt(-2.0*log(1-p)) );
+  }
+}
+
+inline MatrixXd get_sobol_random_boost(const int num_trials, const int num_credits) {
+  MatrixXd x = MatrixXd::Zero(num_trials, num_credits);
+  // Create a generator
+  typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double> > quasi_random_gen_t;
+  // Initialize the engine to draw randomness out of thin air
+  boost::random::sobol engine(num_credits);
+  // Glue the engine and the distribution together
+  quasi_random_gen_t gen(engine, boost::uniform_01<double>());
+  for (int t{0}; t < num_trials;++t){
+    std::vector<double> sobols(num_credits);
+    std::vector<double> normals(num_credits);
+    // At this point you can use std::generate, generate member f-n, etc.
+    std::generate(sobols.begin(), sobols.end(), gen);
+    std::transform(sobols.begin(), sobols.end(), normals.begin(), [](double s){return NormalCDFInverse(s);});
+    double* ptr_data = &normals[0];
+    Eigen::VectorXd v2 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(ptr_data, normals.size());
+    x.row(t) = v2;
+  }
+  x.transposeInPlace();
+  return x;
+}
+
+template<typename M>
+M load_csv (const std::string & path) {
+  std::ifstream indata;
+  indata.open(path);
+  std::string line;
+  std::vector<double> values;
+  uint rows = 0;
+  while (std::getline(indata, line)) {
+    std::stringstream lineStream(line);
+    std::string cell;
+    while (std::getline(lineStream, cell, ',')) {
+      values.push_back(std::stod(cell));
+    }
+    ++rows;
+  }
+  return Map<const Matrix<typename M::Scalar, M::RowsAtCompileTime, M::ColsAtCompileTime, RowMajor>>(values.data(), rows, values.size()/rows);
 }
 
 inline double N(double x) {
@@ -110,39 +187,9 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
   return tokens;
 }
 
-inline double RationalApproximation(double t)
-{
-  // Abramowitz and Stegun formula 26.2.23.
-  // The absolute value of the error should be less than 4.5 e-4.
-  double c[] = {2.515517, 0.802853, 0.010328};
-  double d[] = {1.432788, 0.189269, 0.001308};
-  return t - ((c[2]*t + c[1])*t + c[0]) /
-      (((d[2]*t + d[1])*t + d[0])*t + 1.0);
-}
 
-//https://www.johndcook.com/blog/normal_cdf_inverse/
-inline double NormalCDFInverse(double p)
-{
-  if (p <= 0.0 || p >= 1.0)
-  {
-    std::stringstream os;
-    os << "Invalid input argument (" << p
-       << "); must be larger than 0 but less than 1.";
-    throw std::invalid_argument( os.str() );
-  }
 
-  // See article above for explanation of this section.
-  if (p < 0.5)
-  {
-    // F^-1(p) = - G^-1(p)
-    return -RationalApproximation( sqrt(-2.0*log(p)) );
-  }
-  else
-  {
-    // F^-1(p) = G^-1(1-p)
-    return RationalApproximation( sqrt(-2.0*log(1-p)) );
-  }
-}
+
 
 
 #endif//FINPROJ_INCLUDE_FINPROJ_UTILS_MISC_H_

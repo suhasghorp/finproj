@@ -7,19 +7,22 @@ MatrixXd StudentTCopula::default_times(const std::vector<CreditCurve> &issuer_cu
                           const MatrixXd& correlationMatrix,
                           float degrees_of_freedom,
                           int num_trials,
-                          int seed) const
+                          int seed,
+                          const std::string& random_number_generation)
 {
   int num_credits = static_cast<int>(issuer_curves.size());
-
-  std::mt19937_64 mtEngine(seed);
-  std::normal_distribution<> nd;
-  std::default_random_engine generator(seed);
-
-  MatrixXd x = MatrixXd::Zero(num_credits,num_trials).unaryExpr([&](double dummy){return nd(mtEngine);});
+  MatrixXd x;
+  if (random_number_generation == "PSEUDO"){
+    std::mt19937_64 mtEngine(seed);
+    std::normal_distribution<> nd;
+    x = MatrixXd::Zero(num_credits,num_trials).unaryExpr([&](double dummy){return dummy + nd(mtEngine);});
+  } else if (random_number_generation == "QUASI"){
+    x = get_sobol_random_boost(num_trials,num_credits);
+  }
   //auto m = x.mean();
   MatrixXd L( correlationMatrix.llt().matrixL() );
   auto y = (L * x).eval();
-
+  std::default_random_engine generator(seed);
   MatrixXd corr_times = MatrixXd::Zero(num_credits, 2 * num_trials);
   for (auto itrial{0};itrial<num_trials;++itrial){
     std::chi_squared_distribution<double> distribution(degrees_of_freedom);
