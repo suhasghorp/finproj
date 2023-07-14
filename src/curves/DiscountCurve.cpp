@@ -85,7 +85,7 @@ std::vector<double> DiscountCurve::df_to_zero(const std::vector<double>& dfs,con
   std::vector<double> zero_rates{};
   zero_rates.reserve(num_times);
   for (size_t i = 0; i < num_times; ++i){
-      auto t = fmax(times.at(i),gSmall);
+      auto t = fmax(times[i],gSmall);
       if (freq_type == FrequencyTypes::CONTINUOUS){
         zero_rates.push_back(-log(dfs[i]) / t);
       } else if (freq_type == FrequencyTypes::SIMPLE){

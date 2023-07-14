@@ -41,6 +41,9 @@ class CDS {
   double premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve) const;
   std::tuple<double,double,double,double> value_fast_approx(const ChronoDate& valuation_date, double flat_cont_int_rate, double flat_cds_curve_spread,
                                                        double curve_rec_rate, double contract_rec_rate) const;
+  double get_coupon() const;
+  void set_coupon(double cpn);
+
  private:
   ChronoDate step_in_date_{}, maturity_date_{};
   double running_coupon_{},notional_{};

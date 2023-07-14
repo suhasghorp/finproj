@@ -49,8 +49,8 @@ MatrixXd GaussCopula::default_times_gc(const std::vector<CreditCurve>& issuer_cu
       auto g = y(i, t);
       auto u1 = 1.0 - N(g);
       auto u2 = 1.0 - u1;
-      auto times = issuer_curves.at(i).times_;
-      auto values = issuer_curves.at(i).values_;
+      auto times = issuer_curves[i].times_;
+      auto values = issuer_curves[i].values_;
       auto t1 = uniform_to_default_time(u1, times, values);
       auto t2 = uniform_to_default_time(u2, times, values);
       corr_times(i,t) = t1;

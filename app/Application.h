@@ -53,6 +53,9 @@ class Application {
                                          const std::vector<double>& spreads_quasi, const std::string& filename) const;
   void plot_spread_convergence(const std::string& dist_type, const std::vector<double>& sims, const std::vector<double>& spreads_converge_pseudo,
                                    const std::vector<double>& spreads_converge_quasi, const std::string& filename) const;
+  void plot_correlation_sensitivity(const std::vector<double>& shocks, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const;
+  void plot_rec_rate_sensitivity(const std::vector<double>& rec_shocks, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const;
+  void plot_spread_sensitivity(const std::vector<double>& bumps, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const;
 
 };
 

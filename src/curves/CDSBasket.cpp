@@ -21,10 +21,10 @@ std::tuple<double,double,double> CDSBasket::value_gaussian_mc(const ChronoDate& 
                                                      int seed,
                                                      const std::string& random_number_generation) const
 {
-  int num_credits = issuer_curves.size();
+  int num_credits = (int)issuer_curves.size();
   if (nth_to_default > num_credits or nth_to_default < 1)
     throw std::runtime_error("nToDefault must be 1 to num_credits");
-  auto default_times = GaussCopula().default_times_gc(issuer_curves,correlation_matrix,num_trials,seed, random_number_generation);
+  auto default_times = GaussCopula::default_times_gc(issuer_curves,correlation_matrix,num_trials,seed, random_number_generation);
   auto [rpv01, prot_pv] = value_legs_mc(valuation_date,nth_to_default,default_times,issuer_curves,libor_curve);
   auto spd = prot_pv / rpv01;
   auto value = notional_ * (prot_pv - running_coupon_ * rpv01);
@@ -42,10 +42,10 @@ std::tuple<double,double,double> CDSBasket::value_student_t_mc(const ChronoDate&
                                                       int seed,
                                                       const std::string& random_number_generation) const
 {
-  int num_credits = issuer_curves.size();
+  int num_credits = (int)issuer_curves.size();
   if (nth_to_default > num_credits or nth_to_default < 1)
     throw std::runtime_error("nToDefault must be 1 to num_credits");
-  auto default_times = StudentTCopula().default_times(issuer_curves,correlation_matrix,degrees_of_freedom,num_trials,seed,random_number_generation);
+  auto default_times = StudentTCopula::default_times(issuer_curves,correlation_matrix,degrees_of_freedom,num_trials,seed,random_number_generation);
   auto [rpv01, prot_pv] = value_legs_mc(valuation_date,nth_to_default,default_times,issuer_curves,libor_curve);
   auto spd = prot_pv / rpv01;
   auto value = notional_ * (prot_pv - running_coupon_ * rpv01);
@@ -60,10 +60,10 @@ std::tuple<double,double> CDSBasket::value_legs_mc(const ChronoDate& valuation_d
                                          const IborSingleCurve& libor_curve) const
 {
   auto num_credits = default_times.rows();
-  auto num_trials = default_times.cols();
+  auto num_trials = default_times.cols()/2;
 
   auto adjusted_dates = cds_contract_.get_adjusted_dates();
-  int num_flows = adjusted_dates.size();
+  int num_flows = (int)adjusted_dates.size();
   DayCount day_count{DayCount(day_count_type_)};
   double averageAccrualFactor = 0.0;
   std::vector<double> rpv01_to_times(num_flows,0.0);

@@ -13,6 +13,7 @@ class StudentTCopula {
                             int num_trials,
                             int seed,
                          const std::string& random_number_generation) ;
+  static double uniform_to_default_time_student(double u, const std::vector<double>& times, const std::vector<double>& values);
 };
 
 #endif//FINPROJ_INCLUDE_FINPROJ_MODELS_STUDENTTCOPULA_H_

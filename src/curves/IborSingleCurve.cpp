@@ -28,7 +28,7 @@ void IborSingleCurve::validate_inputs(){
   auto deposit_start_date = valuation_date_;
   auto swap_start_date = valuation_date_;
   if (ibor_deposits_.size() > 0){
-    deposit_start_date = ibor_deposits_.at(0).get_start_date();
+    deposit_start_date = ibor_deposits_[0].get_start_date();
     if (deposit_start_date < valuation_date_){
       throw std::runtime_error("First deposit starts before valuation date");
     }
@@ -39,7 +39,7 @@ void IborSingleCurve::validate_inputs(){
     }
   }
   if (ibor_deposits_.size() > 0){
-    auto prev_dt = ibor_deposits_.at(0).get_maturity_date();
+    auto prev_dt = ibor_deposits_[0].get_maturity_date();
     for (auto dep : ibor_deposits_ | std::views::drop(1)){
       auto next_dt = dep.get_maturity_date();
       if (next_dt <= prev_dt){
@@ -56,7 +56,7 @@ void IborSingleCurve::validate_inputs(){
     }
   }
   if (ibor_fras_.size() > 1){
-    auto prev_dt = ibor_fras_.at(0).get_maturity_date();
+    auto prev_dt = ibor_fras_[0].get_maturity_date();
     for (auto fra : ibor_fras_ | std::views::drop(1)){
       auto next_dt = fra.get_maturity_date();
       if (next_dt <= prev_dt){
@@ -67,14 +67,14 @@ void IborSingleCurve::validate_inputs(){
 
   //SWAP checks
   if (ibor_swaps_.size() > 1){
-    auto start_dt = ibor_swaps_.at(0).get_eff_date();
+    auto start_dt = ibor_swaps_[0].get_eff_date();
     for (auto swap : ibor_swaps_ | std::views::drop(1)){
       auto next_dt = swap.get_eff_date();
       if (next_dt != start_dt){
         throw std::runtime_error("Swaps must all have same start date.");
       }
     }
-    auto prev_dt = ibor_swaps_.at(0).get_maturity_date();
+    auto prev_dt = ibor_swaps_[0].get_maturity_date();
     for (auto swap : ibor_swaps_ | std::views::drop(1)){
       auto next_dt = swap.get_maturity_date();
       if (next_dt <= prev_dt){
@@ -99,11 +99,11 @@ void IborSingleCurve::validate_inputs(){
     last_dep_maturity_date = ibor_deposits_.back().get_maturity_date();
   }
   if (ibor_fras_.size() > 0){
-    first_fra_maturity_date = ibor_fras_.at(0).get_maturity_date();
+    first_fra_maturity_date = ibor_fras_[0].get_maturity_date();
     last_fra_maturity_date = ibor_fras_.back().get_maturity_date();
   }
   if(ibor_swaps_.size() > 0){
-    first_swap_maturity_date = ibor_swaps_.at(0).get_maturity_date();
+    first_swap_maturity_date = ibor_swaps_[0].get_maturity_date();
   }
   if (ibor_deposits_.size() > 0 && ibor_fras_.size() > 0){
     if (first_fra_maturity_date <= last_dep_maturity_date)
@@ -116,13 +116,13 @@ void IborSingleCurve::validate_inputs(){
 
   /** If both depos and swaps start after T, we need a rate to get them to
   the first deposit. So we create a synthetic deposit rate contract. */
-  swap_start_date = ibor_swaps_.at(0).get_eff_date();
+  swap_start_date = ibor_swaps_[0].get_eff_date();
   if (swap_start_date > valuation_date_){
     if (ibor_deposits_.size() == 0)
       throw std::runtime_error("Need a deposit rate to pin down short end.");
-    deposit_start_date = ibor_deposits_.at(0).get_start_date();
+    deposit_start_date = ibor_deposits_[0].get_start_date();
     if (deposit_start_date > valuation_date_){
-      auto first_depo = ibor_deposits_.at(0);
+      auto first_depo = ibor_deposits_[0];
       if (first_depo.get_start_date() > valuation_date_){
         auto synthetic_deposit(first_depo);
         synthetic_deposit.set_start_date(valuation_date_);
@@ -133,7 +133,7 @@ void IborSingleCurve::validate_inputs(){
   }
 
   if (ibor_swaps_.size() > 0){
-    day_count_type_ = ibor_swaps_.at(0).get_double_leg().get_day_count_type();
+    day_count_type_ = ibor_swaps_[0].get_double_leg().get_day_count_type();
   } else {
     day_count_type_ = DayCountTypes{};
   }

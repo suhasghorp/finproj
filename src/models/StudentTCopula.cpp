@@ -33,13 +33,51 @@ MatrixXd StudentTCopula::default_times(const std::vector<CreditCurve> &issuer_cu
       boost::math::students_t boost_t_dist{degrees_of_freedom};
       auto u1 = boost::math::cdf(boost_t_dist,g);
       auto u2 = 1.0 - u1;
-      auto times = issuer_curves.at(icredit).times_;
-      auto values = issuer_curves.at(icredit).values_;
-      auto t1 = uniform_to_default_time(u1, times, values);
-      auto t2 = uniform_to_default_time(u2, times, values);
+      auto times = issuer_curves[icredit].times_;
+      auto values = issuer_curves[icredit].values_;
+      auto t1 = StudentTCopula::uniform_to_default_time_student(u1, times, values);
+      auto t2 = StudentTCopula::uniform_to_default_time_student(u2, times, values);
       corr_times(icredit,itrial) = t1;
       corr_times(icredit, itrial + num_trials) = t2;
     }
   }
   return corr_times;
+}
+
+double StudentTCopula::uniform_to_default_time_student(double u, const std::vector<double>& times, const std::vector<double>& values)
+{
+  if (u == 0.0)
+    return 99999.0;
+  if (u == 1.0)
+    return 0.0;
+  size_t num_points = times.size();
+  size_t index = 0;
+  for (size_t i{1};i<num_points;++i){
+    if (u <= values[i - 1] && u > values[i]){
+      index = i;
+      break;
+    }
+  }
+  double tau = 0.0;
+  if (index == num_points + 1) {
+    auto t1 = times[num_points - 1];
+    auto q1 = values[num_points - 1];
+    auto t2 = times[num_points];
+    auto q2 = values[num_points];
+    auto lam = log(q1 / q2) / (t2 - t1);
+    tau = t2 - log(u / q2) / lam;
+  } else if (index == 0){
+    auto t1 = times.back();
+    auto q1 = values.back();
+    auto t2 = times[index];
+    auto q2 = values[index];
+    tau = (t1 * log(q2 / u) + t2 * log(u / q1)) / log(q2 / q1);
+  } else {
+    auto t1 = times[index - 1];
+    auto q1 = values[index - 1];
+    auto t2 = times[index];
+    auto q2 = values[index];
+    tau = (t1 * log(q2 / u) + t2 * log(u / q1)) / log(q2 / q1);
+  }
+  return tau;
 }

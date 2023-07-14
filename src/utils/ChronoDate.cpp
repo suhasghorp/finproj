@@ -28,9 +28,9 @@ ChronoDate::ChronoDate(const Date& ymd) : date_{ ymd },serial_date_{0}{
 
 ChronoDate::ChronoDate(const std::string& str):date_{},serial_date_{0}{
   auto splits = split(str,"/");
-  unsigned int m = stoul(splits.at(0));
-  unsigned int d = stoul(splits.at(1));
-  int y = stoi(splits.at(2));
+  unsigned int m = stoul(splits[0]);
+  unsigned int d = stoul(splits[1]);
+  int y = stoi(splits[2]);
   date_ = std::chrono::year_month_day{ date::year{y} / date::month{m} / date::day{d} };
   reset_serial_date_();
 }
@@ -186,7 +186,7 @@ ChronoDate ChronoDate::add_months(int rhs_months) const {
 
 ChronoDate ChronoDate::add_weekdays(int num_days) const {
   auto positive_num_days = num_days > 0 ? true:false;
-  num_days = fabs(num_days);
+  num_days = std::fabs(num_days);
   auto num_days_left = num_days;
   ChronoDate end_date {*this };
   while (num_days_left > 0){

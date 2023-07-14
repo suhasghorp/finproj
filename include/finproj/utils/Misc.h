@@ -131,7 +131,7 @@ inline double uniform_to_default_time(double u, const std::vector<double>& times
   size_t num_points = times.size();
   size_t index = 0;
   for (size_t i{1};i<num_points;++i){
-    if (u <= values.at(i - 1) && u > values.at(i)){
+    if (u <= values[i - 1] && u > values[i]){
       index = i;
       break;
     }

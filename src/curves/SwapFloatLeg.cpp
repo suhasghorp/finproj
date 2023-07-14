@@ -48,7 +48,7 @@ coupons cannot be generated yet as we do not have the index curve. */
   auto schedule_dates = schedule.get_schedule();
   if (schedule_dates.size() < 2)
     throw std::runtime_error("Schedule has none or only one date");
-  auto prev_dt = schedule_dates.at(0);
+  auto prev_dt = schedule_dates[0];
   auto dc = DayCount{day_count_type_};
   auto calendar = Calendar{cal_type_};
   std::vector<unsigned int> accrued_days{};
@@ -77,11 +77,11 @@ double SwapFloatLeg::value(const ChronoDate& val_date, const DiscountCurve& disc
   auto index_basis = index_curve.day_count_type_;
   auto index_day_counter = DayCount(index_basis);
   for (size_t i{0}; i < num_payments; ++i){
-    pmnt_dt = payment_dates_.at(i);
+    pmnt_dt = payment_dates_[i];
     if (pmnt_dt > val_date){
-      auto start_accrued_dt = start_accrual_dates_.at(i);
-      auto end_accrued_dt = end_accrual_dates_.at(i);
-      auto pay_alpha = year_fracs_.at(i);
+      auto start_accrued_dt = start_accrual_dates_[i];
+      auto end_accrued_dt = end_accrual_dates_[i];
+      auto pay_alpha = year_fracs_[i];
       std::tuple<double,unsigned int, unsigned int> temp = index_day_counter.year_frac(
           start_accrued_dt,end_accrued_dt,FrequencyTypes::ANNUAL);
       double fwd_rate{};

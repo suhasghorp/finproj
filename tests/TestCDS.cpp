@@ -179,7 +179,7 @@ static CreditCurve build_issuer_curve_two(double mkt_spread_bump, double ir_bump
 }
 
 TEST_CASE( "test_cds_one", "[single-file]" ){
-    auto cds_recovery = 0.40;
+    auto cds_recovery = 0.4;
     auto issuer_curve1 = build_issuer_curve_one(0.0, 0.0);
     //This is the 10 year contract at an off market coupon
     ChronoDate maturity_date{2029,6,20};

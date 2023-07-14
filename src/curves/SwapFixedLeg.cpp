@@ -55,7 +55,7 @@ date is the first actual payment date. */
   auto schedule_dates = schedule.get_schedule();
   if (schedule_dates.size() < 2)
     throw std::runtime_error("Schedule has none or only one date");
-  auto prev_dt = schedule_dates.at(0);
+  auto prev_dt = schedule_dates[0];
   auto dc = DayCount{day_count_type_};
   auto calendar = Calendar{cal_type_};
   std::vector<ChronoDate> start_accrual_dates{},end_accrual_dates{};
@@ -84,8 +84,8 @@ double SwapFixedLeg::value(const ChronoDate& val_date, const DiscountCurve& disc
   ChronoDate pmnt_dt{};
   auto num_payments = payment_dates_.size();
   for (size_t i{0}; i < num_payments; ++i){
-    pmnt_dt = payment_dates_.at(i);
-    auto pmnt_amount = payments_.at(i);
+    pmnt_dt = payment_dates_[i];
+    auto pmnt_amount = payments_[i];
     if (pmnt_dt > val_date){
       df_pmnt = disc_curve.df(pmnt_dt) / df_value;
       auto pmnt_pv = pmnt_amount * df_pmnt;

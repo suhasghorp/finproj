@@ -58,11 +58,11 @@ void CDS::generate_adjusted_cds_payment_dates(){
     }
     //holiday adjust
     for (int i{0}; i < flow_num - 1;++i){
-      auto dt = calendar.adjust(adjusted_dates_.at(i), bus_day_adjust_type_);
-      adjusted_dates_.at(i) = dt;
+      auto dt = calendar.adjust(adjusted_dates_[i], bus_day_adjust_type_);
+      adjusted_dates_[i] = dt;
     }
-    auto final_date = adjusted_dates_.at(flow_num - 1);
-    adjusted_dates_.at(flow_num - 1) = final_date.add_days(1);
+    auto final_date = adjusted_dates_[flow_num - 1];
+    adjusted_dates_[flow_num - 1] = final_date.add_days(1);
   } else if (date_gen_rule_type_ == DateGenRuleTypes::FORWARD){
     auto next_date = start_date;
     auto flow_num = 0;
@@ -74,7 +74,7 @@ void CDS::generate_adjusted_cds_payment_dates(){
       ++flow_num;
     }
     for (int i{1}; i < flow_num;++i){
-      auto dt = calendar.adjust(unadjusted_schedule_dates.at(i),bus_day_adjust_type_);
+      auto dt = calendar.adjust(unadjusted_schedule_dates[i],bus_day_adjust_type_);
       adjusted_dates_.push_back(dt);
     }
     auto final_date = end_date.add_days(1);
@@ -89,8 +89,8 @@ void CDS::calc_flows() {
   flows_.push_back(0.0);
   auto num_flows = payment_dates.size();
   for (size_t i{1};i<num_flows;++i){
-    auto t0 = payment_dates.at(i - 1);
-    auto t1 = payment_dates.at(i);
+    auto t0 = payment_dates[i - 1];
+    auto t1 = payment_dates[i];
     auto accrual_factor = std::get<0>(day_count.year_frac(t0, t1, FrequencyTypes::ANNUAL));
     auto flow = accrual_factor * running_coupon_ * notional_;
     accrual_factors_.push_back(accrual_factor);
@@ -101,10 +101,10 @@ void CDS::calc_flows() {
 std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, const CreditCurve& credit_curve) const{
   std::vector<double> payment_times{};
   for (size_t i{0};i < adjusted_dates_.size(); ++i){
-    auto t = (adjusted_dates_.at(i) - valuation_date)/365.0;
+    auto t = (adjusted_dates_[i] - valuation_date)/365.0;
     payment_times.push_back(t);
   }
-  auto pcd = adjusted_dates_.at(0);
+  auto pcd = adjusted_dates_[0];
   auto eff = step_in_date_;
   auto day_count = DayCount(day_count_type_);
   auto accrual_factorPCDToNow = std::get<0>(day_count.year_frac(pcd, eff, FrequencyTypes::ANNUAL));
@@ -112,20 +112,20 @@ std::tuple<double,double> CDS::risky_pv01(const ChronoDate& valuation_date, cons
   auto teff = (eff - valuation_date) / 365.0;
 
   auto couponAccruedIndicator = 1;
-  auto tncd = payment_times.at(1);
+  auto tncd = payment_times[1];
   auto credit_interp = Interpolator(credit_curve.times_,credit_curve.values_,InterpTypes::FLAT_FWD_RATES);
   auto rates_interp = Interpolator(credit_curve.libor_curve_.times_,credit_curve.libor_curve_.dfs_,InterpTypes::FLAT_FWD_RATES);
   auto qeff = credit_interp.interpolate(teff);
   auto q1 = credit_interp.interpolate(tncd);
   auto z1 = rates_interp.interpolate(tncd);
-  auto full_rpv01 = q1 * z1 * year_fracs.at(1);
+  auto full_rpv01 = q1 * z1 * year_fracs[1];
   full_rpv01 = full_rpv01 + z1 * (qeff - q1) * accrual_factorPCDToNow * couponAccruedIndicator;
-  full_rpv01 += 0.5 * z1 * (qeff - q1) * (year_fracs.at(1) - accrual_factorPCDToNow) * couponAccruedIndicator;
+  full_rpv01 += 0.5 * z1 * (qeff - q1) * (year_fracs[1] - accrual_factorPCDToNow) * couponAccruedIndicator;
   for (size_t i{2}; i<payment_times.size();++i){
-    auto t2 = payment_times.at(i);
+    auto t2 = payment_times[i];
     auto q2 = credit_interp.interpolate(t2);
     auto z2 = rates_interp.interpolate(t2);
-    auto accrual_factor = year_fracs.at(i);
+    auto accrual_factor = year_fracs[i];
     full_rpv01 += q2 * z2 * accrual_factor;
     auto tau = accrual_factor;
     auto h12 = -log(q2 / q1) / tau;
@@ -205,19 +205,23 @@ double CDS::clean_price(const ChronoDate& valuation_date, const CreditCurve& cre
 }
 
 unsigned int CDS::accrued_days() const{
-    auto pcd = adjusted_dates_.at(0);
+    auto pcd = adjusted_dates_[0];
     unsigned int accrued_days = (step_in_date_ - pcd);
     return accrued_days;
 }
 
 double CDS::accrued_interest() const {
     auto day_count = DayCount(day_count_type_);
-    auto pcd = adjusted_dates_.at(0);
+    auto pcd = adjusted_dates_[0];
     auto accrual_factor = std::get<0>(day_count.year_frac(pcd, step_in_date_, FrequencyTypes::ANNUAL));
     auto accrued_interest = accrual_factor * notional_ * running_coupon_;
     auto long_prot = long_protection_ ? -1 : 1;
     return long_prot * accrued_interest;
 }
+
+double CDS::get_coupon() const { return running_coupon_;}
+void CDS::set_coupon(double cpn) { running_coupon_ = cpn;}
+
 
 double CDS::premium_leg_pv(const ChronoDate& valuation_date, const CreditCurve& credit_curve) const
 {

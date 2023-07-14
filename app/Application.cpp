@@ -125,7 +125,7 @@ void Application::plot_surv_prob_curves(const ChronoDate& val_date,const std::ve
     std::vector<double> surv_probs{};
     std::vector<double> hazard_rates{};
     hazard_rates.push_back(0.0);
-    for (auto y{0}; y < years.size(); ++y){
+    for (size_t y{0}; y < years.size(); ++y){
       auto date = val_date.add_years(years[y]);
       auto q = curve.surv_prob(date);
       surv_probs.push_back(q);
@@ -150,7 +150,7 @@ void Application::plot_hazard_curves(const ChronoDate& val_date,const std::vecto
     std::vector<double> surv_probs{};
     std::vector<double> hazard_rates{};
     hazard_rates.push_back(0.0);
-    for (auto y{0}; y < years.size(); ++y){
+    for (size_t y{0}; y < years.size(); ++y){
       auto date = val_date.add_years(years[y]);
       auto q = curve.surv_prob(date);
       surv_probs.push_back(q);
@@ -189,6 +189,44 @@ void Application::plot_spread_convergence(const std::string& dist_type, const st
   plt::plot(sims, spreads_converge_quasi, {{"label", "quasi-random"}});
   plt::title(dist_type + "- Convergence");
   plt::xlabel("Num of Simulations");
+  plt::ylabel("Credit Spread (bps)");
+  plt::legend();
+  plt::save(filename);
+}
+
+void Application::plot_correlation_sensitivity(const std::vector<double>& shocks, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const{
+  plt::figure();
+  for (size_t i{1}; i < 6; ++i){
+    plt::plot(shocks, shocked_data[i-1], {{"label", "k = " + std::to_string(i)}});
+  }
+  plt::title("Correlation Sensitivity - kth to default");
+  plt::xlabel("Correlation Shock(%)");
+  plt::ylabel("Credit Spread (bps)");
+  plt::legend();
+  plt::save(filename);
+}
+
+void Application::plot_rec_rate_sensitivity(const std::vector<double>& rec_shocks, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const
+{
+  plt::figure();
+  for (size_t i{1}; i < 6; ++i){
+    plt::plot(rec_shocks, shocked_data[i-1], {{"label", "k = " + std::to_string(i)}});
+  }
+  plt::title("Recovery Rates Sensitivity - kth to default");
+  plt::xlabel("Recovery Rates");
+  plt::ylabel("Credit Spread (bps)");
+  plt::legend();
+  plt::save(filename);
+}
+
+void Application::plot_spread_sensitivity(const std::vector<double>& bumps, const std::vector<std::vector<double>> shocked_data, const std::string& filename) const
+{
+  plt::figure();
+  for (size_t i{1}; i < 6; ++i){
+    plt::plot(bumps, shocked_data[i-1], {{"label", "k = " + std::to_string(i)}});
+  }
+  plt::title("CDS Spreads Sensitivity - kth to default");
+  plt::xlabel("CDS Spread % Shock");
   plt::ylabel("Credit Spread (bps)");
   plt::legend();
   plt::save(filename);
